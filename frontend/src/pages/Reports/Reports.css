@@ -1,0 +1,107 @@
+/* ==========================================================================
+   REPORTS PAGE STYLES (Reports.css)
+   ========================================================================== */
+
+/* Report Filter Toolbar */
+.reports-toolbar-card {
+  margin-bottom: var(--spacing-lg);
+}
+
+.reports-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .reports-toolbar-content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+}
+
+.reports-filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  flex-grow: 1;
+}
+
+.reports-filter-select {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Charts responsive grid */
+.reports-charts-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: 1fr;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .reports-charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Chart block wrapper */
+.report-chart-card {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-title-wrapper {
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.chart-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chart-container-box {
+  flex-grow: 1;
+  width: 100%;
+  height: 300px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-in-sm);
+  background-color: var(--color-bg-surface);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Custom legend elements */
+.custom-legend-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.legend-item {
+  display: flex;
+  align-center: center;
+  gap: var(--spacing-xxs);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+}
