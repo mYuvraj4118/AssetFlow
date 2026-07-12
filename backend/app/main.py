@@ -68,3 +68,6 @@ app.include_router(
 
 from app.api.departments import router as department_router
 app.include_router(department_router)
+
+from app.api.categories import router as categories_router
+app.include_router(categories_router)
