@@ -31,6 +31,7 @@ async def startup() -> None:
     from app.models.maintenance import Maintenance
     from app.models.transfer import Transfer
     from app.models.audit import AuditCycle, AuditRecord
+    from app.models.report import Report, ReportSnapshot, AnalyticsCache
 
     await init_beanie(
         database=_database,
@@ -40,7 +41,10 @@ async def startup() -> None:
             Maintenance,
             Transfer,
             AuditCycle,
-            AuditRecord
+            AuditRecord,
+            Report,
+            ReportSnapshot,
+            AnalyticsCache
         ]
     )
 
