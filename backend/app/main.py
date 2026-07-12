@@ -23,3 +23,13 @@ def health():
     return {
         "status": "healthy"
     }
+
+from app.constants import UserRole, AssetStatus
+
+
+@app.get("/constants")
+def get_constants():
+    return {
+        "roles": [role.value for role in UserRole],
+        "asset_status": [status.value for status in AssetStatus],
+    }
