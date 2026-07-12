@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -55,19 +55,19 @@ class DepartmentBase(BaseModel):
         ),
     ]] = None
     parent_department_id: Optional[Annotated[
-        int,
+        Union[str, int],
         Field(
             None,
             description="Identifier of the parent department.",
-            example=1,
+            example="65d12d4a9c8d7e6f0a1b2c41",
         ),
     ]] = None
     manager_id: Optional[Annotated[
-        int,
+        Union[str, int],
         Field(
             None,
             description="Identifier of the department manager.",
-            example=42,
+            example="65d12d4a9c8d7e6f0a1b2c41",
         ),
     ]] = None
     status: Annotated[
@@ -142,19 +142,19 @@ class DepartmentUpdate(BaseModel):
         ),
     ]] = None
     parent_department_id: Optional[Annotated[
-        int,
+        Union[str, int],
         Field(
             None,
             description="Identifier of the parent department.",
-            example=1,
+            example="65d12d4a9c8d7e6f0a1b2c41",
         ),
     ]] = None
     manager_id: Optional[Annotated[
-        int,
+        Union[str, int],
         Field(
             None,
             description="Identifier of the department manager.",
-            example=42,
+            example="65d12d4a9c8d7e6f0a1b2c41",
         ),
     ]] = None
     status: Optional[Annotated[
@@ -192,9 +192,9 @@ class DepartmentResponse(DepartmentBase):
     """Schema returned when a single department is retrieved."""
 
     id: Annotated[
-        int,
+        Union[str, int],
         Field(
-            ..., description="Unique department identifier.", example=10,
+            ..., description="Unique department identifier.", example="65d12d4a9c8d7e6f0a1b2c41",
         ),
     ]
     created_at: Annotated[

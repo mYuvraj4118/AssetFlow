@@ -25,6 +25,26 @@ async def startup() -> None:
     _database = get_database()
     logger.info("Database connection established successfully")
 
+    # Idempotent Index Initialization for Assets and AssetHistory
+    try:
+        from app.models.asset import Asset
+        from app.models.asset_history import AssetHistory
+
+        logger.info("Initializing database indexes...")
+        
+        asset_coll = _database.get_collection(Asset.collection_name())
+        for definition in Asset.index_definitions():
+            await asset_coll.create_index(definition["keys"], **definition["kwargs"])
+            
+        history_coll = _database.get_collection(AssetHistory.collection_name())
+        for definition in AssetHistory.index_definitions():
+            await history_coll.create_index(definition["keys"], **definition["kwargs"])
+
+        logger.info("Database indexes initialized successfully")
+    except Exception as exc:
+        logger.error(f"Failed to initialize database indexes: {exc}")
+
+
 
 async def shutdown() -> None:
     """Close database connection during application shutdown."""

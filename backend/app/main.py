@@ -68,3 +68,9 @@ app.include_router(
 
 from app.api.departments import router as department_router
 app.include_router(department_router)
+
+from app.api.assets import router as assets_router
+app.include_router(
+    assets_router,
+    prefix="/api",
+)
