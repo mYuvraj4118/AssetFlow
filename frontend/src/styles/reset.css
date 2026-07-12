@@ -1,0 +1,130 @@
+/* ==========================================================================
+   MODERN CSS RESET (reset.css)
+   ========================================================================== */
+
+/* 1. Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. Prevent font size inflation and set smooth scrolling */
+html {
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  scroll-behavior: smooth;
+}
+
+/* 3. Remove default margins and paddings */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+/* 4. Remove list styles from utility lists (e.g. navigation) */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+}
+
+/* 5. Set core body defaults */
+body {
+  min-height: 100vh;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 6. Form element styling and inheritance */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Make buttons look clickable */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Disable focus outline by default but enable strong, uniform keyboard-only focus ring */
+input:focus,
+button:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary, #aa3bff);
+  outline-offset: 3px;
+  box-shadow: var(--shadow-focus, 0 0 0 3px rgba(170, 59, 255, 0.3));
+}
+
+/* 7. Fluid media defaults */
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 8. Inherit font for SVGs to match text style color */
+svg {
+  fill: currentColor;
+}
+
+/* 9. Remove built-in form validation bubble styling in some browsers */
+input:invalid,
+textarea:invalid {
+  box-shadow: none;
+}
+
+/* 10. Table defaults */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* 11. Accessibility: Respect prefers-reduced-motion user preference */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
