@@ -1,15 +1,28 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import {
+  Clock,
+  Compass,
+  CheckCircle,
+  AlertCircle,
+  CalendarCheck,
+  Calendar,
+  XCircle,
+  Plus,
+  Bell,
+  X
+} from 'lucide-react';
 import {
   getAllBookings,
   createBooking,
   rescheduleBooking,
   cancelBooking,
-} from '../../services/bookingService'
-import NeoCard from '../../components/workflows/NeoCard'
-import NeoButton from '../../components/workflows/NeoButton'
-import NeoInput from '../../components/workflows/NeoInput'
-import StatusBadge from '../../components/workflows/StatusBadge'
-import WorkflowModal from '../../components/workflows/WorkflowModal'
+} from '../../services/bookingService';
+import PageContainer from '../../components/layout/PageContainer';
+import { Card, Button, Badge, SearchBar, EmptyState, Loader, Input, StatCard } from '../../components/common';
+import StatusBadge from '../../components/workflows/StatusBadge';
+import WorkflowModal from '../../components/workflows/WorkflowModal';
+import './ResourceBooking.css';
+
 
 // Pre-defined dummy resources and employees for testing
 const DUMMY_RESOURCES = [
@@ -403,164 +416,132 @@ export default function Booking() {
   const countCancelled = bookings.filter((b) => b.status === 'Cancelled').length
 
   return (
-    <div className="min-h-screen bg-[#e0e5ec] p-6 md:p-10 font-body relative text-[#3d4852]">
+    <PageContainer title="Shared Resource Booking">
       {/* Toast Alert */}
       {toast && (
-        <div
-          className={`fixed top-6 right-6 z-55 px-5 py-3.5 rounded-xl font-semibold text-sm border shadow-lg transition-all duration-300 transform translate-y-0 ${
-            toast.type === 'danger'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : toast.type === 'warning'
-              ? 'bg-amber-50 text-amber-700 border-amber-200'
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-          }`}
+        <Card 
+          variant="flat" 
+          className="booking-toast p-md rounded-md d-flex justify-between align-center animate-fade-in"
+          style={{ 
+            borderLeft: `4px solid var(--color-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'})`,
+            background: 'var(--color-bg-surface)'
+          }}
         >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-            {toast.message}
+          <div className="d-flex align-center gap-sm">
+            <Bell className={`animate-pulse text-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'}`} size={18} />
+            <span className="text-sm-sz font-semibold text-main">{toast.message}</span>
           </div>
-        </div>
+          <button 
+            type="button"
+            className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
+            onClick={() => setToast(null)}
+            style={{ border: 'none', background: 'transparent' }}
+          >
+            <X size={14} className="text-muted" />
+          </button>
+        </Card>
       )}
 
       {/* Demo Sandbox Alert */}
       {isDemoMode && (
-        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-            </span>
-            <p className="text-sm font-medium">
+        <Card variant="flat" className="demo-banner-card p-md mb-lg d-flex justify-between align-center flex-wrap gap-md">
+          <div className="d-flex align-center gap-sm">
+            <AlertCircle className="text-warning animate-pulse" size={20} />
+            <span className="text-sm-sz text-main font-medium">
               Running in <strong>Demo Sandbox Mode</strong>. Connect backend API to save persistent changes.
-            </p>
+            </span>
           </div>
-          <NeoButton
-            variant="secondary"
+          <Button
+            variant="flat"
+            size="sm"
             onClick={loadData}
-            className="text-xs py-1.5 px-3 bg-amber-100/50 hover:bg-amber-200/50 border border-amber-200 text-amber-800 shadow-none hover:translate-y-0"
+            style={{ color: 'var(--color-warning-dark)' }}
           >
             Retry API Connection
-          </NeoButton>
-        </div>
+          </Button>
+        </Card>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#3d4852] font-display">
-            Shared Resource Booking
-          </h1>
-          <p className="text-[#6b7280] text-sm mt-1">
+      {/* Header Description & Action Toolbar */}
+      <div className="booking-header-wrapper">
+        <div className="booking-title-section">
+          <p>
             Check availability schedules, book conference rooms, test labs, and vehicles instantly.
           </p>
         </div>
-        <NeoButton variant="primary" onClick={() => setIsBookOpen(true)} className="self-start md:self-auto">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+        <Button 
+          variant="primary" 
+          onClick={() => setIsBookOpen(true)}
+          icon={<Plus size={18} />}
+        >
           Book Resource
-        </NeoButton>
+        </Button>
       </div>
 
       {/* KPIs Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Upcoming Slots</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countUpcoming}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-indigo-600">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Ongoing Meetings</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countOngoing}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-purple-600">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Completed</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countCompleted}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-emerald-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Cancelled</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countCancelled}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-red-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </NeoCard>
+      <div className="booking-stats-grid">
+        <StatCard
+          title="Upcoming Slots"
+          value={countUpcoming}
+          icon={<Clock size={20} className="text-info" />}
+        />
+        <StatCard
+          title="Ongoing Meetings"
+          value={countOngoing}
+          icon={<Compass size={20} className="text-primary" />}
+        />
+        <StatCard
+          title="Completed"
+          value={countCompleted}
+          icon={<CheckCircle size={20} className="text-success" />}
+        />
+        <StatCard
+          title="Cancelled"
+          value={countCancelled}
+          icon={<XCircle size={20} className="text-danger" />}
+        />
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="booking-grid">
         
         {/* Left Side: Booking Timeline Feed */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <NeoCard className="neo-extruded flex-1">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-              <h2 className="text-xl font-bold text-[#3d4852] font-display self-start">
+        <div className="d-flex flex-col gap-lg">
+          <Card variant="flat" className="p-lg">
+            <div className="booking-toolbar">
+              <h2 className="text-heading font-semibold text-lg-sz m-0">
                 Booking Schedule Log
               </h2>
 
-              <div className="w-full sm:w-64 relative">
-                <input
-                  type="text"
+              <div className="booking-search-wrapper">
+                <SearchBar
                   placeholder="Search purpose or user..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-transparent bg-[#e0e5ec] shadow-[inset_3px_3px_6px_var(--af-shadow-dark),_inset_-3px_-3px_6px_var(--af-shadow-light)] focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 text-[#3d4852]"
                 />
-                <svg className="absolute left-3.5 top-2.5 w-4 h-4 text-[#6b7280]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
               </div>
             </div>
 
             {/* Quick Filters */}
-            <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-4">
+            <div className="booking-filters-row mb-md" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 'var(--spacing-sm)' }}>
               {['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'].map((status) => (
                 <button
                   key={status}
+                  type="button"
                   onClick={() => setStatusFilter(status)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 ${
-                    statusFilter === status
-                      ? 'bg-[#6C63FF] text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)]'
-                      : 'bg-[#e0e5ec] text-[#6b7280] shadow-[2px_2px_5px_var(--af-shadow-dark),_-2px_-2px_5px_var(--af-shadow-light)] hover:text-[#3d4852]'
-                  }`}
+                  className={`booking-filter-btn ${statusFilter === status ? 'active' : ''}`}
                 >
                   {status}
                 </button>
               ))}
 
-              <div className="h-6 w-px bg-slate-350 mx-2 hidden sm:block" />
+              <div className="booking-divider" />
 
               <select
                 value={timelineResourceFilter}
                 onChange={(e) => setTimelineResourceFilter(e.target.value)}
-                className="px-2 py-1 text-xs font-semibold rounded-lg bg-[#e0e5ec] text-[#6b7280] shadow-[2px_2px_5px_var(--af-shadow-dark),_-2px_-2px_5px_var(--af-shadow-light)] focus:outline-none"
+                className="org-select"
+                style={{ width: 'auto', padding: 'var(--spacing-xs) var(--spacing-sm)', fontSize: 'var(--text-xs)', height: 'auto' }}
               >
                 <option value="All">All Resources</option>
                 {DUMMY_RESOURCES.map((r) => (
@@ -573,22 +554,22 @@ export default function Booking() {
 
             {/* Bookings Feed */}
             {loading ? (
-              <div className="py-20 text-center">
-                <div className="inline-block w-8 h-8 rounded-full border-4 border-slate-300 border-t-[#6C63FF] animate-spin mb-4" />
-                <p className="text-sm text-[#6b7280]">Loading resource schedule...</p>
+              <div className="py-xl">
+                <Loader text="Loading resource schedule..." size="lg" />
               </div>
             ) : filteredBookings.length === 0 ? (
-              <div className="py-20 text-center rounded-2xl bg-[#e0e5ec] border border-dashed border-slate-350">
-                <svg className="w-12 h-12 text-[#6b7280] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <h3 className="text-lg font-bold text-[#3d4852]">No Bookings Logged</h3>
-                <p className="text-[#6b7280] text-sm mt-1 max-w-xs mx-auto">
-                  Try checking other filters or book a new resource.
-                </p>
-              </div>
+              <EmptyState
+                title="No Bookings Logged"
+                description="Try checking other filters or book a new resource."
+                icon={<CalendarCheck size={36} className="text-primary" />}
+                actionButton={
+                  <Button variant="primary" onClick={() => setIsBookOpen(true)} icon={<Plus size={16} />}>
+                    Book Resource
+                  </Button>
+                }
+              />
             ) : (
-              <div className="flex flex-col gap-5">
+              <div className="booking-log-list">
                 {filteredBookings.map((book) => {
                   const sTime = new Date(book.start_time)
                   const eTime = new Date(book.end_time)
@@ -596,47 +577,42 @@ export default function Booking() {
                   const timespanString = `${sTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${eTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
 
                   return (
-                    <div
-                      key={book.id}
-                      className="p-5 rounded-2xl bg-[#e0e5ec] border border-slate-200/50 shadow-[4px_4px_8px_var(--af-shadow-dark),_-4px_-4px_8px_var(--af-shadow-light)] flex flex-col sm:flex-row items-start justify-between gap-4 hover:shadow-lg transition-shadow"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2.5 flex-wrap mb-2.5">
-                          <h3 className="text-sm font-bold text-slate-800">
+                    <div key={book.id} className="booking-log-item">
+                      <div style={{ flex: 1 }}>
+                        <div className="d-flex align-center gap-sm flex-wrap mb-xs">
+                          <h3 className="text-heading font-semibold text-sm-sz m-0">
                             {getResourceName(book.resource_id)}
                           </h3>
-                          <StatusBadge status={book.status} className="scale-90" />
+                          <StatusBadge status={book.status} />
                         </div>
 
-                        <p className="text-xs text-[#6b7280] mb-2">
+                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', margin: '0 0 var(--spacing-xxs) 0' }}>
                           <strong>Booked For:</strong> {getEmployeeName(book.employee_id)}
                         </p>
 
-                        <p className="text-sm font-semibold text-slate-700 mb-1">
+                        <p className="text-main font-semibold" style={{ fontSize: 'var(--text-sm)', margin: 'var(--spacing-xxs) 0' }}>
                           "{book.purpose}"
                         </p>
 
-                        <div className="flex items-center gap-4 text-xs text-[#6b7280] mt-3">
-                          <span className="flex items-center gap-1.5">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                        <div className="booking-log-meta-group">
+                          <span className="booking-log-meta-item">
+                            <Calendar size={14} className="text-muted" />
                             {dateString}
                           </span>
-                          <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                            <svg className="w-4 h-4 text-[#6C63FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {timespanString}
+                          <span className="booking-log-meta-item">
+                            <Clock size={14} className="text-primary" />
+                            <strong>{timespanString}</strong>
                           </span>
                         </div>
                       </div>
 
                       {/* Timeline Actions */}
-                      <div className="self-stretch sm:self-auto flex sm:flex-col justify-end gap-2.5">
+                      <div className="d-flex gap-sm sm-flex-col" style={{ alignSelf: 'stretch', justifyContent: 'flex-end' }}>
                         {(book.status === 'Upcoming' || book.status === 'Ongoing') && (
                           <>
-                            <button
+                            <Button
+                              variant="flat"
+                              size="sm"
                               onClick={() => {
                                 setSelectedBooking(book)
                                 setRescheduleForm({
@@ -645,28 +621,30 @@ export default function Booking() {
                                 })
                                 setIsRescheduleOpen(true)
                               }}
-                              className="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-[#6C63FF] border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all text-center"
+                              style={{ color: 'var(--color-primary-dark)' }}
                             >
                               Reschedule
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="flat"
+                              size="sm"
                               onClick={() => {
                                 setSelectedBooking(book)
                                 setIsCancelConfirmOpen(true)
                               }}
-                              className="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-red-650 border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all text-center"
+                              style={{ color: 'var(--color-danger)' }}
                             >
                               Cancel
-                            </button>
+                            </Button>
                           </>
                         )}
                         {book.status === 'Cancelled' && (
-                          <span className="text-xs text-red-500 italic mt-auto">
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)', fontStyle: 'italic' }}>
                             Cancelled
                           </span>
                         )}
                         {book.status === 'Completed' && (
-                          <span className="text-xs text-emerald-600 italic mt-auto">
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', fontStyle: 'italic' }}>
                             Meeting Ended
                           </span>
                         )}
@@ -676,27 +654,26 @@ export default function Booking() {
                 })}
               </div>
             )}
-          </NeoCard>
+          </Card>
         </div>
 
         {/* Right Side: Quick Availability Schedule Check */}
-        <div className="flex flex-col gap-6">
-          <NeoCard className="neo-extruded">
-            <h2 className="text-lg font-bold text-[#3d4852] font-display mb-4">
+        <div className="d-flex flex-col gap-lg">
+          <Card variant="flat" className="p-lg">
+            <h2 className="text-heading font-semibold text-lg-sz m-0 mb-sm">
               Real-time Availability Checker
             </h2>
-            <p className="text-xs text-[#6b7280] mb-5">
+            <p className="text-muted" style={{ fontSize: 'var(--text-xs)', marginBottom: 'var(--spacing-md)' }}>
               Select a resource to review its current hourly bookings and find conflicts.
             </p>
 
-            <div className="flex flex-col gap-2 mb-6">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Choose Resource
-              </label>
+            <div className="form-field-group mb-md">
+              <label htmlFor="checker_resource_select">Choose Resource</label>
               <select
+                id="checker_resource_select"
                 value={checkerResource}
                 onChange={(e) => setCheckerResource(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner text-sm"
+                className="org-select"
               >
                 {DUMMY_RESOURCES.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -707,30 +684,29 @@ export default function Booking() {
             </div>
 
             {/* Hourly schedule list for selected resource */}
-            <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-1">
+            <div className="checker-list">
               {resourceSpecificBookings.length === 0 ? (
-                <div className="py-10 text-center border border-dashed border-slate-350 rounded-xl">
-                  <p className="text-xs text-[#6b7280]">Fully open! No bookings scheduled.</p>
-                </div>
+                <EmptyState
+                  title="Fully Open"
+                  description="No bookings scheduled."
+                  padding="sm"
+                />
               ) : (
                 resourceSpecificBookings.map((b) => {
                   const s = new Date(b.start_time)
                   const e = new Date(b.end_time)
                   return (
-                    <div
-                      key={b.id}
-                      className="p-3 bg-[#e0e5ec] border border-slate-200/50 rounded-xl shadow-[inset_2px_2px_4px_var(--af-shadow-dark),_inset_-2px_-2px_4px_var(--af-shadow-light)] text-xs"
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-slate-700">
+                    <div key={b.id} className="checker-item">
+                      <div className="checker-item-header">
+                        <span className="font-bold text-heading">
                           {s.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {e.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        <StatusBadge status={b.status} className="scale-75 origin-right" />
+                        <StatusBadge status={b.status} style={{ transform: 'scale(0.8)', transformOrigin: 'right center' }} />
                       </div>
-                      <p className="text-[#6b7280]">
+                      <p style={{ margin: 'var(--spacing-3xs) 0 0 0', color: 'var(--color-text-muted)' }}>
                         <strong>Date:</strong> {s.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </p>
-                      <p className="text-[#6b7280] font-medium truncate mt-0.5">
+                      <p style={{ margin: 'var(--spacing-3xs) 0 0 0', color: 'var(--color-text-muted)' }} className="truncate">
                         <strong>User:</strong> {getEmployeeName(b.employee_id)}
                       </p>
                     </div>
@@ -738,7 +714,7 @@ export default function Booking() {
                 })
               )}
             </div>
-          </NeoCard>
+          </Card>
         </div>
 
       </div>
@@ -751,15 +727,14 @@ export default function Booking() {
         onClose={() => setIsBookOpen(false)}
         title="Schedule / Book Resource"
       >
-        <form onSubmit={handleCreateBooking} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Select Resource
-            </label>
+        <form onSubmit={handleCreateBooking} className="d-flex flex-col gap-md">
+          <div className="form-field-group">
+            <label htmlFor="book_resource_select">Select Resource</label>
             <select
+              id="book_resource_select"
               value={bookForm.resource_id}
               onChange={(e) => setBookForm({ ...bookForm, resource_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_RESOURCES.map((res) => (
                 <option key={res.id} value={res.id}>
@@ -769,14 +744,13 @@ export default function Booking() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Booked For (Employee)
-            </label>
+          <div className="form-field-group">
+            <label htmlFor="book_employee_select">Booked For (Employee)</label>
             <select
+              id="book_employee_select"
               value={bookForm.employee_id}
               onChange={(e) => setBookForm({ ...bookForm, employee_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_EMPLOYEES.map((emp) => (
                 <option key={emp.id} value={emp.id}>
@@ -786,8 +760,8 @@ export default function Booking() {
             </select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <NeoInput
+          <div className="d-grid grid-cols-2 gap-sm">
+            <Input
               id="start_time"
               label="Start Date & Time"
               type="datetime-local"
@@ -796,7 +770,7 @@ export default function Booking() {
               onChange={(e) => setBookForm({ ...bookForm, start_time: e.target.value })}
             />
 
-            <NeoInput
+            <Input
               id="end_time"
               label="End Date & Time"
               type="datetime-local"
@@ -806,23 +780,26 @@ export default function Booking() {
             />
           </div>
 
-          <NeoInput
-            id="purpose"
-            label="Booking Purpose"
-            type="textarea"
-            placeholder="Add meeting agenda or deployment notes..."
-            required
-            value={bookForm.purpose}
-            onChange={(e) => setBookForm({ ...bookForm, purpose: e.target.value })}
-          />
+          <div className="form-field-group">
+            <label htmlFor="purpose_textarea">Booking Purpose</label>
+            <textarea
+              id="purpose_textarea"
+              placeholder="Add meeting agenda or deployment notes..."
+              required
+              value={bookForm.purpose}
+              onChange={(e) => setBookForm({ ...bookForm, purpose: e.target.value })}
+              className="nm-field"
+              rows={3}
+            />
+          </div>
 
-          <div className="flex justify-end gap-3 mt-4">
-            <NeoButton variant="secondary" onClick={() => setIsBookOpen(false)}>
+          <div className="d-flex justify-end gap-sm mt-md">
+            <Button variant="flat" onClick={() => setIsBookOpen(false)}>
               Cancel
-            </NeoButton>
-            <NeoButton type="submit" variant="primary">
+            </Button>
+            <Button type="submit" variant="primary">
               Confirm Booking
-            </NeoButton>
+            </Button>
           </div>
         </form>
       </WorkflowModal>
@@ -834,18 +811,18 @@ export default function Booking() {
         title="Reschedule Booking"
       >
         {selectedBooking && (
-          <form onSubmit={handleReschedule} className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form onSubmit={handleReschedule} className="d-flex flex-col gap-md">
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Resource:</strong> {getResourceName(selectedBooking.resource_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Purpose:</strong> "{selectedBooking.purpose}"
               </p>
-            </div>
+            </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <NeoInput
+            <div className="d-grid grid-cols-2 gap-sm">
+              <Input
                 id="resched_start_time"
                 label="New Start Time"
                 type="datetime-local"
@@ -854,7 +831,7 @@ export default function Booking() {
                 onChange={(e) => setRescheduleForm({ ...rescheduleForm, start_time: e.target.value })}
               />
 
-              <NeoInput
+              <Input
                 id="resched_end_time"
                 label="New End Time"
                 type="datetime-local"
@@ -864,13 +841,13 @@ export default function Booking() {
               />
             </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsRescheduleOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsRescheduleOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary">
+              </Button>
+              <Button type="submit" variant="primary">
                 Save Changes
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
@@ -883,35 +860,35 @@ export default function Booking() {
         title="Cancel Booking Slot"
       >
         {selectedBooking && (
-          <div className="flex flex-col gap-5">
-            <p className="text-sm text-[#6b7280]">
+          <div className="d-flex flex-col gap-md">
+            <p className="text-muted" style={{ fontSize: 'var(--text-sm)' }}>
               Are you sure you want to cancel the booking for{' '}
               <strong>{getResourceName(selectedBooking.resource_id)}</strong> by{' '}
               <strong>{getEmployeeName(selectedBooking.employee_id)}</strong>?
             </p>
 
-            <div className="p-3 bg-red-50 text-red-700 rounded-xl text-xs border border-red-200">
+            <Card variant="flat" padding="sm" className="nm-inset text-danger" style={{ fontSize: 'var(--text-xs)', borderLeft: '3px solid var(--color-danger)' }}>
               <p>
                 <strong>Timeslot:</strong>{' '}
                 {new Date(selectedBooking.start_time).toLocaleString()} -{' '}
                 {new Date(selectedBooking.end_time).toLocaleString()}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Agenda:</strong> "{selectedBooking.purpose}"
               </p>
-            </div>
+            </Card>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsCancelConfirmOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsCancelConfirmOpen(false)}>
                 Go Back
-              </NeoButton>
-              <NeoButton variant="danger" onClick={handleCancelBooking}>
+              </Button>
+              <Button variant="danger" onClick={handleCancelBooking}>
                 Yes, Cancel Slot
-              </NeoButton>
+              </Button>
             </div>
           </div>
         )}
       </WorkflowModal>
-    </div>
+    </PageContainer>
   )
 }

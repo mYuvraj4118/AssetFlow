@@ -1,0 +1,223 @@
+/* ==========================================================================
+   RESOURCE BOOKING PAGE STYLES (ResourceBooking.css)
+   ========================================================================== */
+
+/* Layout grid splits log feed from checker on large screens */
+.booking-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: 1fr;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .booking-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Page Header Wrapper */
+.booking-header-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .booking-header-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.booking-title-section h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.booking-title-section p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin: var(--spacing-xxs) 0 0 0;
+}
+
+/* KPI Card Grid */
+.booking-stats-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .booking-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .booking-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Toolbar search, filters & select resource dropdowns */
+.booking-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .booking-toolbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.booking-search-wrapper {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .booking-search-wrapper {
+    width: 280px;
+  }
+}
+
+.booking-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.booking-filter-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-flat-out-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-nm);
+}
+
+.booking-filter-btn:hover {
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.booking-filter-btn.active {
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-flat-in-sm);
+  border-color: rgba(var(--color-primary-rgb), 0.25);
+}
+
+.booking-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+  margin: 0 var(--spacing-xxs);
+}
+
+/* Log Cards List */
+.booking-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.booking-log-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-flat-in-sm);
+  gap: var(--spacing-sm);
+  transition: var(--transition-nm);
+}
+
+.booking-log-item:hover {
+  box-shadow: var(--shadow-flat-out-sm);
+}
+
+@media (min-width: 640px) {
+  .booking-log-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.booking-log-meta-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.booking-log-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+}
+
+.booking-log-meta-item strong {
+  color: var(--color-text-main);
+}
+
+/* Checker Sidebar */
+.checker-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: var(--spacing-xs);
+}
+
+.checker-item {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-flat-in-sm);
+  font-size: var(--text-xs);
+}
+
+.checker-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3xs);
+}
+
+/* Toast alert layout */
+.booking-toast {
+  position: fixed;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  z-index: 999;
+  min-width: 280px;
+  border-left: 4px solid var(--color-primary);
+}
+
+.demo-banner-card {
+  border-left: 4px solid var(--color-warning);
+}

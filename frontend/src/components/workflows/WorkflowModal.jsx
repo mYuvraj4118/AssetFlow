@@ -1,4 +1,6 @@
 import React from 'react';
+import { X } from 'lucide-react';
+import Card from '../common/Card';
 
 export default function WorkflowModal({
   isOpen,
@@ -11,35 +13,44 @@ export default function WorkflowModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300">
-      <div 
-        className={`relative w-full max-w-lg bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-200/60 dark:border-slate-700/60 transition-all transform duration-300 ${className}`}
+    <div 
+      className="pos-fixed top-0 left-0 w-screen h-screen z-50 d-flex align-center justify-center p-md"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(3px)' }}
+    >
+      <Card 
+        variant="flat" 
+        className={`w-full max-w-md p-lg animate-fade-in ${className}`}
+        style={{ position: 'relative' }}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200/50 dark:border-slate-700/50">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+        {/* Header */}
+        <div className="d-flex justify-between align-center mb-md" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 'var(--spacing-sm)' }}>
+          <h3 className="text-heading font-semibold text-lg-sz m-0">
             {title}
           </h3>
-          <button
+          <button 
+            type="button"
+            className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+            style={{ border: 'none', background: 'transparent' }}
             aria-label="Close modal"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X size={16} className="text-muted" />
           </button>
         </div>
 
-        <div className="py-4 text-slate-700 dark:text-slate-350">
+        {/* Content */}
+        <div className="mb-md text-main" style={{ fontSize: 'var(--text-sm)' }}>
           {children}
         </div>
 
+        {/* Footer */}
         {footer && (
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
+          <div className="d-flex justify-end gap-sm pt-md" style={{ borderTop: '1px solid var(--color-border)' }}>
             {footer}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
+

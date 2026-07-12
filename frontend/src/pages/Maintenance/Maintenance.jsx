@@ -1,4 +1,15 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import {
+  Wrench,
+  ShieldAlert,
+  AlertTriangle,
+  AlertCircle,
+  Plus,
+  CheckCircle,
+  Clock,
+  Bell,
+  X
+} from 'lucide-react';
 import {
   getMaintenanceRequests,
   createMaintenanceRequest,
@@ -7,12 +18,13 @@ import {
   assignTechnician,
   startMaintenance,
   resolveMaintenance,
-} from '../../services/maintenanceService'
-import NeoCard from '../../components/workflows/NeoCard'
-import NeoButton from '../../components/workflows/NeoButton'
-import NeoInput from '../../components/workflows/NeoInput'
-import StatusBadge from '../../components/workflows/StatusBadge'
-import WorkflowModal from '../../components/workflows/WorkflowModal'
+} from '../../services/maintenanceService';
+import PageContainer from '../../components/layout/PageContainer';
+import { Card, Button, Badge, SearchBar, EmptyState, Loader, StatCard, Input } from '../../components/common';
+import StatusBadge from '../../components/workflows/StatusBadge';
+import WorkflowModal from '../../components/workflows/WorkflowModal';
+import './Maintenance.css';
+
 
 const DUMMY_ASSETS = [
   { id: '65d12a1b9c8d7e6f0a1b2c34', name: 'MacBook Pro 16" (MBP-2024-001)' },
@@ -58,22 +70,33 @@ const getTechnicianName = (id) => {
 
 // Priority Badge Component
 function PriorityBadge({ priority, className = '' }) {
-  const priorityStyles = {
-    critical: 'bg-red-100 text-red-700 border border-red-200',
-    high: 'bg-orange-100 text-orange-700 border border-orange-200',
-    medium: 'bg-amber-100 text-amber-700 border border-amber-200',
-    low: 'bg-slate-100 text-slate-700 border border-slate-200',
-  }
-
-  const p = String(priority || '').toLowerCase()
-  const currentStyle = priorityStyles[p] || 'bg-slate-100 text-slate-700 border-slate-200'
+  const p = String(priority || '').toLowerCase();
+  
+  const getVariant = (val) => {
+    switch (val) {
+      case 'critical':
+      case 'high':
+        return 'danger';
+      case 'medium':
+        return 'warning';
+      case 'low':
+      default:
+        return 'neutral';
+    }
+  };
 
   return (
-    <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${currentStyle} ${className}`}>
+    <Badge 
+      variant={getVariant(p)} 
+      inset={false} 
+      className={className}
+      style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+    >
       {priority}
-    </span>
-  )
+    </Badge>
+  );
 }
+
 
 export default function Maintenance() {
   // Lists
@@ -471,147 +494,118 @@ export default function Maintenance() {
   const countCritical = requests.filter((r) => r.priority === 'Critical' && r.status !== 'Resolved').length
 
   return (
-    <div className="min-h-screen bg-[#e0e5ec] p-6 md:p-10 font-body relative text-[#3d4852]">
+    <PageContainer title="Maintenance Management">
       {/* Toast Alert */}
       {toast && (
-        <div
-          className={`fixed top-6 right-6 z-55 px-5 py-3.5 rounded-xl font-semibold text-sm border shadow-lg transition-all duration-300 transform translate-y-0 ${
-            toast.type === 'danger'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : toast.type === 'warning'
-              ? 'bg-amber-50 text-amber-700 border-amber-200'
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-          }`}
+        <Card 
+          variant="flat" 
+          className="maintenance-toast p-md rounded-md d-flex justify-between align-center animate-fade-in"
+          style={{ 
+            borderLeft: `4px solid var(--color-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'})`,
+            background: 'var(--color-bg-surface)'
+          }}
         >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-            {toast.message}
+          <div className="d-flex align-center gap-sm">
+            <Bell className={`animate-pulse text-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'}`} size={18} />
+            <span className="text-sm-sz font-semibold text-main">{toast.message}</span>
           </div>
-        </div>
+          <button 
+            type="button"
+            className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
+            onClick={() => setToast(null)}
+            style={{ border: 'none', background: 'transparent' }}
+          >
+            <X size={14} className="text-muted" />
+          </button>
+        </Card>
       )}
 
       {/* Demo Sandbox Mode Banner */}
       {isDemoMode && (
-        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-            </span>
-            <p className="text-sm font-medium">
+        <Card variant="flat" className="demo-banner-card p-md mb-lg d-flex justify-between align-center flex-wrap gap-md">
+          <div className="d-flex align-center gap-sm">
+            <AlertCircle className="text-warning animate-pulse" size={20} />
+            <span className="text-sm-sz text-main font-medium">
               Running in <strong>Demo Sandbox Mode</strong>. Connect backend API to save persistent changes.
-            </p>
+            </span>
           </div>
-          <NeoButton
-            variant="secondary"
+          <Button
+            variant="flat"
+            size="sm"
             onClick={loadData}
-            className="text-xs py-1.5 px-3 bg-amber-100/50 hover:bg-amber-200/50 border border-amber-200 text-amber-800 shadow-none hover:translate-y-0"
+            style={{ color: 'var(--color-warning-dark)' }}
           >
             Retry API Connection
-          </NeoButton>
-        </div>
+          </Button>
+        </Card>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#3d4852] font-display">
-            Maintenance Management
-          </h1>
-          <p className="text-[#6b7280] text-sm mt-1">
+      {/* Header Description & Action Toolbar */}
+      <div className="maintenance-header-wrapper">
+        <div className="maintenance-title-section">
+          <p>
             File repair logs, approve tickets, assign specialized technicians, and verify resolutions.
           </p>
         </div>
-        <NeoButton variant="primary" onClick={() => setIsRequestOpen(true)} className="self-start md:self-auto">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+        <Button 
+          variant="primary" 
+          onClick={() => setIsRequestOpen(true)}
+          icon={<Plus size={18} />}
+        >
           Raise Repair Ticket
-        </NeoButton>
+        </Button>
       </div>
 
       {/* KPIs Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Pending Approvals</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countPending}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-amber-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Active Jobs</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countActive}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-[#6C63FF]">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Resolved Issues</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{countResolved}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-emerald-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Critical Unresolved</span>
-            <span className="text-3xl font-extrabold text-red-500 font-display block mt-1">{countCritical}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-red-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-        </NeoCard>
+      <div className="maintenance-stats-grid">
+        <StatCard
+          title="Pending Approvals"
+          value={countPending}
+          icon={<ShieldAlert size={20} className="text-warning" />}
+        />
+        <StatCard
+          title="Active Jobs"
+          value={countActive}
+          icon={<Wrench size={20} className="text-primary" />}
+        />
+        <StatCard
+          title="Resolved Issues"
+          value={countResolved}
+          icon={<CheckCircle size={20} className="text-success" />}
+        />
+        <StatCard
+          title="Critical Unresolved"
+          value={countCritical}
+          icon={<AlertTriangle size={20} className="text-danger" />}
+        />
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-col gap-6">
+      <div className="d-flex flex-col gap-lg">
         
         {/* Filter Control panel */}
-        <NeoCard className="neo-extruded">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <Card variant="flat" className="maintenance-filter-card">
+          <div className="maintenance-filter-toolbar">
             
             {/* Search Input */}
-            <div className="w-full lg:w-96 relative">
-              <input
-                type="text"
+            <div className="maintenance-search-wrapper">
+              <SearchBar
                 placeholder="Search asset, issue description, or tech..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-transparent bg-[#e0e5ec] shadow-[inset_3px_3px_6px_var(--af-shadow-dark),_inset_-3px_-3px_6px_var(--af-shadow-light)] focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 text-[#3d4852]"
               />
-              <svg className="absolute left-3.5 top-2.5 w-4 h-4 text-[#6b7280]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+            <div className="maintenance-selectors-row">
               
               {/* Status Selector */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase text-[#6b7280]">Status:</span>
+              <div className="maintenance-select-group">
+                <span>Status:</span>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[#e0e5ec] text-[#6b7280] shadow-[2px_2px_5px_var(--af-shadow-dark),_-2px_-2px_5px_var(--af-shadow-light)] focus:outline-none"
+                  className="org-select"
+                  style={{ width: 'auto', padding: 'var(--spacing-xs) var(--spacing-sm)', fontSize: 'var(--text-xs)', height: 'auto' }}
                 >
                   <option value="All">All Statuses</option>
                   <option value="Pending">Pending</option>
@@ -624,12 +618,13 @@ export default function Maintenance() {
               </div>
 
               {/* Priority Selector */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase text-[#6b7280]">Priority:</span>
+              <div className="maintenance-select-group">
+                <span>Priority:</span>
                 <select
                   value={priorityFilter}
                   onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[#e0e5ec] text-[#6b7280] shadow-[2px_2px_5px_var(--af-shadow-dark),_-2px_-2px_5px_var(--af-shadow-light)] focus:outline-none"
+                  className="org-select"
+                  style={{ width: 'auto', padding: 'var(--spacing-xs) var(--spacing-sm)', fontSize: 'var(--text-xs)', height: 'auto' }}
                 >
                   <option value="All">All Priorities</option>
                   <option value="Low">Low</option>
@@ -641,69 +636,65 @@ export default function Maintenance() {
             </div>
 
           </div>
-        </NeoCard>
+        </Card>
 
         {/* Requests List */}
         {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block w-8 h-8 rounded-full border-4 border-slate-300 border-t-[#6C63FF] animate-spin mb-4" />
-            <p className="text-sm text-[#6b7280]">Loading repair tickets...</p>
+          <div className="py-xl">
+            <Loader text="Loading repair tickets..." size="lg" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <div className="py-20 text-center rounded-2xl bg-[#e0e5ec] border border-dashed border-slate-350">
-            <svg className="w-12 h-12 text-[#6b7280] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3 className="text-lg font-bold text-[#3d4852]">No Maintenance Tickets Found</h3>
-            <p className="text-[#6b7280] text-sm mt-1 max-w-xs mx-auto">
-              Check filters or raise a new repair log for damaged assets.
-            </p>
-          </div>
+          <EmptyState
+            title="No Maintenance Tickets Found"
+            description="Check filters or raise a new repair log for damaged assets."
+            icon={<AlertCircle size={36} className="text-primary" />}
+            actionButton={
+              <Button variant="primary" onClick={() => setIsRequestOpen(true)} icon={<Plus size={16} />}>
+                Raise Ticket
+              </Button>
+            }
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="maintenance-ticket-grid">
             {filteredRequests.map((req) => (
-              <NeoCard
-                key={req.id}
-                className="neo-extruded flex flex-col justify-between hover:shadow-lg transition-all duration-300"
-              >
+              <div key={req.id} className="ticket-card">
                 {/* Upper Details */}
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-xs text-[#6b7280] font-semibold">
+                  <div className="ticket-card-header">
+                    <span className="ticket-card-id">
                       Ticket #{req.id.substring(req.id.length - 6).toUpperCase()}
                     </span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="d-flex align-center gap-xs">
                       <PriorityBadge priority={req.priority} />
-                      <StatusBadge status={req.status} className="scale-90" />
+                      <StatusBadge status={req.status} />
                     </div>
                   </div>
 
                   {/* Photo Display if available */}
                   {req.photo_url && (
-                    <div className="mb-4 rounded-xl overflow-hidden shadow-inner max-h-[160px]">
+                    <div className="ticket-card-image-box">
                       <img
                         src={req.photo_url}
                         alt="Asset damage"
-                        className="w-full h-full object-cover"
                         onError={(e) => { e.target.style.display = 'none' }}
                       />
                     </div>
                   )}
 
-                  <h3 className="text-base font-bold text-slate-800 mb-1 leading-snug">
+                  <h3 className="ticket-card-title">
                     {req.issue}
                   </h3>
                   
-                  <p className="text-xs text-indigo-650 font-bold mb-3 font-display">
+                  <p className="ticket-card-asset">
                     {getAssetName(req.asset_id)}
                   </p>
 
-                  <p className="text-xs text-[#6b7280] leading-relaxed mb-4">
+                  <p className="ticket-card-desc">
                     {req.description}
                   </p>
 
                   {/* Workflow Log Details */}
-                  <div className="bg-[#e0e5ec] p-3 rounded-xl shadow-[inset_1.5px_1.5px_3px_rgba(0,0,0,0.1),_inset_-1.5px_-1.5px_3px_rgba(255,255,255,0.7)] text-xs text-[#6b7280] flex flex-col gap-1.5 mb-5">
+                  <div className="ticket-card-details-box">
                     <p>
                       <strong>Raised By:</strong> {getEmployeeName(req.raised_by)}
                     </p>
@@ -713,80 +704,85 @@ export default function Maintenance() {
                       </p>
                     )}
                     {req.approval_remarks && (
-                      <p className="italic text-slate-700 mt-0.5">
-                        <strong>Approval:</strong> "{req.approval_remarks}"
+                      <p className="italic-note">
+                        <strong>Approval remarks:</strong> "{req.approval_remarks}"
                       </p>
                     )}
                     {req.resolution_remarks && (
-                      <p className="italic text-slate-700 mt-0.5">
-                        <strong>Resolution:</strong> "{req.resolution_remarks}"
+                      <p className="italic-note">
+                        <strong>Resolution remarks:</strong> "{req.resolution_remarks}"
                       </p>
                     )}
                   </div>
                 </div>
 
                 {/* Workflow Buttons */}
-                <div className="flex flex-col gap-2 pt-4 border-t border-slate-300">
+                <div className="ticket-card-actions">
                   {req.status === 'Pending' && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedRequest(req)
-                          setIsApproveRejectOpen(true)
-                        }}
-                        className="flex-1 px-3 py-2 rounded-lg text-xs font-semibold bg-[#6C63FF] hover:bg-[#5B54E8] text-white shadow-sm transition-colors text-center"
-                      >
-                        Approve / Reject
-                      </button>
-                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedRequest(req)
+                        setIsApproveRejectOpen(true)
+                      }}
+                    >
+                      Approve / Reject
+                    </Button>
                   )}
 
                   {req.status === 'Approved' && (
-                    <button
+                    <Button
+                      variant="flat"
+                      size="sm"
                       onClick={() => {
                         setSelectedRequest(req)
                         setIsAssignTechOpen(true)
                       }}
-                      className="w-full px-3 py-2 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-[#6C63FF] border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all text-center"
+                      style={{ color: 'var(--color-primary-dark)' }}
                     >
                       Assign Technician
-                    </button>
+                    </Button>
                   )}
 
                   {req.status === 'Technician Assigned' && (
-                    <button
+                    <Button
+                      variant="flat"
+                      size="sm"
                       onClick={() => handleStartWork(req)}
-                      className="w-full px-3 py-2 rounded-lg text-xs font-semibold bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm transition-colors text-center"
+                      style={{ color: 'var(--color-info-dark)' }}
                     >
                       Start Work (In-Progress)
-                    </button>
+                    </Button>
                   )}
 
                   {req.status === 'In Progress' && (
-                    <button
+                    <Button
+                      variant="flat"
+                      size="sm"
                       onClick={() => {
                         setSelectedRequest(req)
                         setIsResolveOpen(true)
                       }}
-                      className="w-full px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors text-center"
+                      style={{ color: 'var(--color-success)' }}
                     >
                       Mark Resolved
-                    </button>
+                    </Button>
                   )}
 
                   {req.status === 'Resolved' && (
-                    <span className="text-xs text-emerald-600 font-bold text-center italic py-1 bg-emerald-50 rounded-lg border border-emerald-100 block">
+                    <span className="ticket-status-label resolved">
                       Resolved on {new Date(req.resolved_at).toLocaleDateString()}
                     </span>
                   )}
 
                   {req.status === 'Rejected' && (
-                    <span className="text-xs text-red-600 font-bold text-center italic py-1 bg-red-50 rounded-lg border border-red-100 block">
+                    <span className="ticket-status-label rejected">
                       Request Rejected
                     </span>
                   )}
                 </div>
-              </NeoCard>
+              </div>
             ))}
           </div>
         )}
@@ -800,15 +796,14 @@ export default function Maintenance() {
         onClose={() => setIsRequestOpen(false)}
         title="Raise Asset Repair Ticket"
       >
-        <form onSubmit={handleCreateRequest} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Select Affected Asset
-            </label>
+        <form onSubmit={handleCreateRequest} className="d-flex flex-col gap-md">
+          <div className="form-field-group">
+            <label htmlFor="affected_asset_select">Select Affected Asset</label>
             <select
+              id="affected_asset_select"
               value={requestForm.asset_id}
               onChange={(e) => setRequestForm({ ...requestForm, asset_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_ASSETS.map((asset) => (
                 <option key={asset.id} value={asset.id}>
@@ -818,14 +813,13 @@ export default function Maintenance() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Reported By (Employee)
-            </label>
+          <div className="form-field-group">
+            <label htmlFor="reported_by_select">Reported By (Employee)</label>
             <select
+              id="reported_by_select"
               value={requestForm.raised_by}
               onChange={(e) => setRequestForm({ ...requestForm, raised_by: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_EMPLOYEES.map((emp) => (
                 <option key={emp.id} value={emp.id}>
@@ -835,7 +829,7 @@ export default function Maintenance() {
             </select>
           </div>
 
-          <NeoInput
+          <Input
             id="issue"
             label="Issue Summary"
             placeholder="e.g. Screen Flickering, Battery Bulging..."
@@ -844,14 +838,13 @@ export default function Maintenance() {
             onChange={(e) => setRequestForm({ ...requestForm, issue: e.target.value })}
           />
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Urgency / Priority
-            </label>
+          <div className="form-field-group">
+            <label htmlFor="priority_select">Urgency / Priority</label>
             <select
+              id="priority_select"
               value={requestForm.priority}
               onChange={(e) => setRequestForm({ ...requestForm, priority: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
@@ -860,17 +853,20 @@ export default function Maintenance() {
             </select>
           </div>
 
-          <NeoInput
-            id="description"
-            label="Detailed Problem Description"
-            type="textarea"
-            placeholder="Describe when the issue occurs and what symptoms you notice..."
-            required
-            value={requestForm.description}
-            onChange={(e) => setRequestForm({ ...requestForm, description: e.target.value })}
-          />
+          <div className="form-field-group">
+            <label htmlFor="problem_description_textarea">Detailed Problem Description</label>
+            <textarea
+              id="problem_description_textarea"
+              placeholder="Describe when the issue occurs and what symptoms you notice..."
+              required
+              value={requestForm.description}
+              onChange={(e) => setRequestForm({ ...requestForm, description: e.target.value })}
+              className="nm-field"
+              rows={3}
+            />
+          </div>
 
-          <NeoInput
+          <Input
             id="photo_url"
             label="Damage Photo URL (Optional)"
             placeholder="e.g. https://domain.com/image.jpg"
@@ -878,13 +874,13 @@ export default function Maintenance() {
             onChange={(e) => setRequestForm({ ...requestForm, photo_url: e.target.value })}
           />
 
-          <div className="flex justify-end gap-3 mt-4">
-            <NeoButton variant="secondary" onClick={() => setIsRequestOpen(false)}>
+          <div className="d-flex justify-end gap-sm mt-md">
+            <Button variant="flat" onClick={() => setIsRequestOpen(false)}>
               Cancel
-            </NeoButton>
-            <NeoButton type="submit" variant="primary">
+            </Button>
+            <Button type="submit" variant="primary">
               Submit Ticket
-            </NeoButton>
+            </Button>
           </div>
         </form>
       </WorkflowModal>
@@ -896,41 +892,44 @@ export default function Maintenance() {
         title="Manager Action: Repair Ticket"
       >
         {selectedRequest && (
-          <form className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form className="d-flex flex-col gap-md" onSubmit={(e) => e.preventDefault()}>
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Asset:</strong> {getAssetName(selectedRequest.asset_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Reported Issue:</strong> "{selectedRequest.issue}"
               </p>
+            </Card>
+
+            <div className="form-field-group">
+              <label htmlFor="review_remarks_textarea">Review Remarks</label>
+              <textarea
+                id="review_remarks_textarea"
+                placeholder="Provide comments for approval or reasons for rejection..."
+                value={approvalForm.remarks}
+                onChange={(e) => setApprovalForm({ remarks: e.target.value })}
+                className="nm-field"
+                rows={3}
+              />
             </div>
 
-            <NeoInput
-              id="remarks"
-              label="Review Remarks"
-              type="textarea"
-              placeholder="Provide comments for approval or reasons for rejection..."
-              value={approvalForm.remarks}
-              onChange={(e) => setApprovalForm({ remarks: e.target.value })}
-            />
-
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsApproveRejectOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsApproveRejectOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton
+              </Button>
+              <Button
                 onClick={handleReject}
-                className="bg-red-650 hover:bg-red-750 text-white shadow-none"
+                style={{ backgroundColor: 'var(--color-danger)', color: 'var(--color-text-inverse)' }}
               >
                 Reject Ticket
-              </NeoButton>
-              <NeoButton
+              </Button>
+              <Button
                 onClick={handleApprove}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-none"
+                style={{ backgroundColor: 'var(--color-success)', color: 'var(--color-text-inverse)' }}
               >
                 Approve Ticket
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
@@ -943,24 +942,23 @@ export default function Maintenance() {
         title="Assign Repair Technician"
       >
         {selectedRequest && (
-          <form onSubmit={handleAssignTech} className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form onSubmit={handleAssignTech} className="d-flex flex-col gap-md">
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Asset:</strong> {getAssetName(selectedRequest.asset_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Problem:</strong> "{selectedRequest.issue}"
               </p>
-            </div>
+            </Card>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Select Technician
-              </label>
+            <div className="form-field-group">
+              <label htmlFor="tech_select">Select Technician</label>
               <select
+                id="tech_select"
                 value={techForm.technician_id}
                 onChange={(e) => setTechForm({ technician_id: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+                className="org-select"
               >
                 {DUMMY_TECHNICIANS.map((tech) => (
                   <option key={tech.id} value={tech.id}>
@@ -970,13 +968,13 @@ export default function Maintenance() {
               </select>
             </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsAssignTechOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsAssignTechOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary">
+              </Button>
+              <Button type="submit" variant="primary">
                 Assign
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
@@ -989,37 +987,40 @@ export default function Maintenance() {
         title="Resolve Repair Ticket"
       >
         {selectedRequest && (
-          <form onSubmit={handleResolve} className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form onSubmit={handleResolve} className="d-flex flex-col gap-md">
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Asset:</strong> {getAssetName(selectedRequest.asset_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Assigned Tech:</strong> {getTechnicianName(selectedRequest.technician_id)}
               </p>
+            </Card>
+
+            <div className="form-field-group">
+              <label htmlFor="resolution_remarks_textarea">Resolution Action & Remarks</label>
+              <textarea
+                id="resolution_remarks_textarea"
+                placeholder="Describe what repair actions were taken to resolve this problem..."
+                required
+                value={resolutionForm.remarks}
+                onChange={(e) => setResolutionForm({ remarks: e.target.value })}
+                className="nm-field"
+                rows={3}
+              />
             </div>
 
-            <NeoInput
-              id="resolution_remarks"
-              label="Resolution Action & Remarks"
-              type="textarea"
-              placeholder="Describe what repair actions were taken to resolve this problem..."
-              required
-              value={resolutionForm.remarks}
-              onChange={(e) => setResolutionForm({ remarks: e.target.value })}
-            />
-
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsResolveOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsResolveOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary" className="bg-emerald-600 hover:bg-emerald-700">
+              </Button>
+              <Button type="submit" variant="primary" style={{ backgroundColor: 'var(--color-success)', color: 'var(--color-text-inverse)' }}>
                 Submit Resolution
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
       </WorkflowModal>
-    </div>
+    </PageContainer>
   )
 }

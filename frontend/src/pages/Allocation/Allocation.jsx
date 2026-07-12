@@ -1,4 +1,14 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import {
+  Share2,
+  Clock,
+  ArrowLeftRight,
+  CheckCircle,
+  Plus,
+  AlertCircle,
+  Bell,
+  X
+} from 'lucide-react';
 import {
   getAllocations,
   createAllocation,
@@ -8,12 +18,13 @@ import {
   createTransfer,
   approveTransfer,
   rejectTransfer,
-} from '../../services/allocationService'
-import NeoCard from '../../components/workflows/NeoCard'
-import NeoButton from '../../components/workflows/NeoButton'
-import NeoInput from '../../components/workflows/NeoInput'
-import StatusBadge from '../../components/workflows/StatusBadge'
-import WorkflowModal from '../../components/workflows/WorkflowModal'
+} from '../../services/allocationService';
+import PageContainer from '../../components/layout/PageContainer';
+import { Card, Button, Badge, SearchBar, EmptyState, Loader, StatCard, Input } from '../../components/common';
+import StatusBadge from '../../components/workflows/StatusBadge';
+import WorkflowModal from '../../components/workflows/WorkflowModal';
+import './Allocation.css';
+
 
 // Pre-defined dummy assets and employees for dropdown selections to make testing easier
 const DUMMY_ASSETS = [
@@ -422,161 +433,120 @@ export default function Allocation() {
   const totalCompleted = allocations.filter((a) => a.status === 'Returned').length
 
   return (
-    <div className="min-h-screen bg-[#e0e5ec] p-6 md:p-10 font-body relative text-[#3d4852]">
+    <PageContainer title="Asset Allocation & Transfers">
       {/* Toast Notification */}
       {toast && (
-        <div
-          className={`fixed top-6 right-6 z-55 px-5 py-3.5 rounded-xl font-semibold text-sm border shadow-lg transition-all duration-300 transform translate-y-0 ${
-            toast.type === 'danger'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : toast.type === 'warning'
-              ? 'bg-amber-50 text-amber-700 border-amber-200'
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-          }`}
+        <Card 
+          variant="flat" 
+          className="allocation-toast p-md rounded-md d-flex justify-between align-center animate-fade-in"
+          style={{ 
+            borderLeft: `4px solid var(--color-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'})`,
+            background: 'var(--color-bg-surface)'
+          }}
         >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-            {toast.message}
+          <div className="d-flex align-center gap-sm">
+            <Bell className={`animate-pulse text-${toast.type === 'danger' ? 'danger' : toast.type === 'warning' ? 'warning' : 'success'}`} size={18} />
+            <span className="text-sm-sz font-semibold text-main">{toast.message}</span>
           </div>
-        </div>
+          <button 
+            type="button"
+            className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
+            onClick={() => setToast(null)}
+            style={{ border: 'none', background: 'transparent' }}
+          >
+            <X size={14} className="text-muted" />
+          </button>
+        </Card>
       )}
 
       {/* Demo Mode Banner */}
       {isDemoMode && (
-        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-            </span>
-            <p className="text-sm font-medium">
+        <Card variant="flat" className="demo-banner-card p-md mb-lg d-flex justify-between align-center flex-wrap gap-md">
+          <div className="d-flex align-center gap-sm">
+            <AlertCircle className="text-warning animate-pulse" size={20} />
+            <span className="text-sm-sz text-main font-medium">
               Running in <strong>Demo Sandbox Mode</strong>. Connect backend API to save persistent changes.
-            </p>
+            </span>
           </div>
-          <NeoButton
-            variant="secondary"
+          <Button
+            variant="flat"
+            size="sm"
             onClick={loadData}
-            className="text-xs py-1.5 px-3 bg-amber-100/50 hover:bg-amber-200/50 border border-amber-200 text-amber-800 shadow-none hover:translate-y-0"
+            style={{ color: 'var(--color-warning-dark)' }}
           >
             Retry API Connection
-          </NeoButton>
-        </div>
+          </Button>
+        </Card>
       )}
 
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#3d4852] font-display">
-            Asset Allocations & Transfers
-          </h1>
-          <p className="text-[#6b7280] text-sm mt-1">
+      {/* Header Description & Action Toolbar */}
+      <div className="allocation-header-wrapper">
+        <div className="allocation-title-section">
+          <p>
             Dispatch items, manage current custodians, book returns, and direct direct transfers.
           </p>
         </div>
-        <NeoButton
+        <Button
           variant="primary"
           onClick={() => setIsAllocateOpen(true)}
-          className="self-start md:self-auto"
+          icon={<Plus size={18} />}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
           Allocate New Asset
-        </NeoButton>
+        </Button>
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Active Dispatches</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{totalAllocated}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-[#6C63FF]">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Return Requests</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{pendingReturns}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-amber-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m12 12H10" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Pending Transfers</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{pendingTransfers}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-blue-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </NeoCard>
-
-        <NeoCard className="neo-extruded flex items-center justify-between">
-          <div>
-            <span className="text-[#6b7280] text-xs font-bold uppercase tracking-wider block">Returned Assets</span>
-            <span className="text-3xl font-extrabold text-[#3d4852] font-display block mt-1">{totalCompleted}</span>
-          </div>
-          <div className="p-3 bg-[#e0e5ec] rounded-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1),_inset_-2px_-2px_5px_rgba(255,255,255,0.7)] text-emerald-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </NeoCard>
+      <div className="allocation-stats-grid">
+        <StatCard
+          title="Active Dispatches"
+          value={totalAllocated}
+          icon={<Share2 size={20} className="text-primary" />}
+        />
+        <StatCard
+          title="Return Requests"
+          value={pendingReturns}
+          icon={<Clock size={20} className="text-warning" />}
+        />
+        <StatCard
+          title="Pending Transfers"
+          value={pendingTransfers}
+          icon={<ArrowLeftRight size={20} className="text-info" />}
+        />
+        <StatCard
+          title="Returned Assets"
+          value={totalCompleted}
+          icon={<CheckCircle size={20} className="text-success" />}
+        />
       </div>
 
       {/* Main Allocations Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-10">
+      <div className="allocation-grid">
         
         {/* Allocations Table + Filters */}
-        <div className="xl:col-span-2 flex flex-col gap-6">
-          <NeoCard className="neo-extruded flex-1">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-              <h2 className="text-xl font-bold text-[#3d4852] font-display self-start">
+        <div className="d-flex flex-col gap-lg">
+          <Card variant="flat" className="p-lg">
+            <div className="allocation-toolbar">
+              <h2 className="text-heading font-semibold text-lg-sz m-0">
                 Active Allocations
               </h2>
-              {/* Search input with inset neumorphism */}
-              <div className="w-full sm:w-72 relative">
-                <input
-                  type="text"
+              {/* Search input using common SearchBar */}
+              <div className="allocation-search-wrapper">
+                <SearchBar
                   placeholder="Search asset or employee..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-transparent bg-[#e0e5ec] shadow-[inset_3px_3px_6px_var(--af-shadow-dark),_inset_-3px_-3px_6px_var(--af-shadow-light)] focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 text-[#3d4852]"
                 />
-                <svg
-                  className="absolute left-3.5 top-2.5 w-4 h-4 text-[#6b7280]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
               </div>
             </div>
 
             {/* Filter Badges */}
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="allocation-filters-row mb-md">
               {['All', 'Active', 'Return Requested', 'Returned'].map((status) => (
                 <button
                   key={status}
+                  type="button"
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 ${
-                    statusFilter === status
-                      ? 'bg-[#6C63FF] text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)]'
-                      : 'bg-[#e0e5ec] text-[#6b7280] shadow-[2px_2px_5px_var(--af-shadow-dark),_-2px_-2px_5px_var(--af-shadow-light)] hover:text-[#3d4852]'
-                  }`}
+                  className={`allocation-filter-btn ${statusFilter === status ? 'active' : ''}`}
                 >
                   {status}
                 </button>
@@ -585,84 +555,89 @@ export default function Allocation() {
 
             {/* Table Container */}
             {loading ? (
-              <div className="py-20 text-center">
-                <div className="inline-block w-8 h-8 rounded-full border-4 border-slate-300 border-t-[#6C63FF] animate-spin mb-4" />
-                <p className="text-sm text-[#6b7280] font-medium">Fetching allocations...</p>
+              <div className="py-xl">
+                <Loader text="Fetching allocations..." size="lg" />
               </div>
             ) : filteredAllocations.length === 0 ? (
-              <div className="py-20 text-center rounded-2xl bg-[#e0e5ec] border border-dashed border-slate-350">
-                <svg className="w-12 h-12 text-[#6b7280] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-                <h3 className="text-lg font-bold text-[#3d4852]">No Allocations Found</h3>
-                <p className="text-[#6b7280] text-sm mt-1 max-w-xs mx-auto">
-                  Try checking other filters or register a new asset allocation.
-                </p>
-              </div>
+              <EmptyState
+                title="No Allocations Found"
+                description="Try checking other filters or register a new asset allocation."
+                icon={<AlertCircle size={36} className="text-primary" />}
+                actionButton={
+                  <Button variant="primary" onClick={() => setIsAllocateOpen(true)} icon={<Plus size={16} />}>
+                    Allocate Asset
+                  </Button>
+                }
+              />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="allocation-table-wrapper">
+                <table className="allocation-table">
                   <thead>
-                    <tr className="border-b border-slate-300 text-xs font-bold uppercase tracking-wider text-[#6b7280]">
-                      <th className="py-3 px-4">Asset</th>
-                      <th className="py-3 px-4">Custodian</th>
-                      <th className="py-3 px-4">Allocation Date</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                    <tr>
+                      <th>Asset</th>
+                      <th>Custodian</th>
+                      <th>Allocation Date</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-300 text-sm">
+                  <tbody>
                     {filteredAllocations.map((alloc) => (
-                      <tr key={alloc.id} className="hover:bg-slate-100/30 transition-colors">
-                        <td className="py-4 px-4 font-semibold text-[#3d4852]">
+                      <tr key={alloc.id}>
+                        <td className="font-semibold text-heading">
                           {getAssetName(alloc.asset_id)}
                         </td>
-                        <td className="py-4 px-4 text-slate-600">
+                        <td>
                           {getEmployeeName(alloc.employee_id)}
                         </td>
-                        <td className="py-4 px-4 text-xs text-[#6b7280]">
+                        <td style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
                           {new Date(alloc.allocation_date).toLocaleDateString()}
                         </td>
-                        <td className="py-4 px-4">
+                        <td>
                           <StatusBadge status={alloc.status} />
                         </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="inline-flex gap-2">
+                        <td>
+                          <div className="d-flex justify-end gap-xs">
                             {alloc.status === 'Active' && (
                               <>
-                                <button
+                                <Button
+                                  variant="flat"
+                                  size="sm"
                                   onClick={() => {
-                                    setSelectedAllocation(alloc)
-                                    setIsTransferOpen(true)
+                                    setSelectedAllocation(alloc);
+                                    setIsTransferOpen(true);
                                   }}
-                                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-[#6C63FF] border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all"
                                 >
                                   Transfer
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                  variant="flat"
+                                  size="sm"
                                   onClick={() => {
-                                    setSelectedAllocation(alloc)
-                                    setIsReturnRequestOpen(true)
+                                    setSelectedAllocation(alloc);
+                                    setIsReturnRequestOpen(true);
                                   }}
-                                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-amber-600 border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all"
+                                  style={{ color: 'var(--color-warning-dark)' }}
                                 >
                                   Request Return
-                                </button>
+                                </Button>
                               </>
                             )}
                             {alloc.status === 'Return Requested' && (
-                              <button
+                              <Button
+                                variant="flat"
+                                size="sm"
                                 onClick={() => {
-                                  setSelectedAllocation(alloc)
-                                  setIsReturnApprovalOpen(true)
+                                  setSelectedAllocation(alloc);
+                                  setIsReturnApprovalOpen(true);
                                 }}
-                                className="px-3 py-1 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-emerald-600 border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:shadow-sm active:scale-95 transition-all"
+                                style={{ color: 'var(--color-success)' }}
                               >
                                 Approve Return
-                              </button>
+                              </Button>
                             )}
                             {alloc.status === 'Returned' && (
-                              <span className="text-xs text-[#6b7280] italic">
+                              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
                                 Returned on {new Date(alloc.actual_return_date).toLocaleDateString()}
                               </span>
                             )}
@@ -674,68 +649,67 @@ export default function Allocation() {
                 </table>
               </div>
             )}
-          </NeoCard>
+          </Card>
         </div>
 
         {/* Transfers Column Section */}
-        <div className="flex flex-col gap-6">
-          <NeoCard className="neo-extruded flex flex-col">
-            <h2 className="text-xl font-bold text-[#3d4852] font-display mb-4">
+        <div className="d-flex flex-col gap-lg">
+          <Card variant="flat" className="p-lg d-flex flex-col">
+            <h2 className="text-heading font-semibold text-lg-sz m-0 mb-sm">
               Direct Custody Transfers
             </h2>
-            <p className="text-[#6b7280] text-xs mb-6">
+            <p className="text-muted" style={{ fontSize: 'var(--text-xs)', marginBottom: 'var(--spacing-md)' }}>
               Track requests for shifting ownership of active assets directly between employees.
             </p>
 
-            <div className="flex flex-col gap-4 overflow-y-auto max-h-[500px] pr-2">
+            <div className="transfer-list-container">
               {transfers.length === 0 ? (
-                <div className="py-12 text-center border border-dashed border-slate-350 rounded-xl">
-                  <p className="text-xs text-[#6b7280]">No custody transfer logs yet.</p>
-                </div>
+                <EmptyState
+                  title="No Transfers"
+                  description="No custody transfer logs yet."
+                  padding="sm"
+                />
               ) : (
                 transfers.map((transfer) => (
-                  <div
-                    key={transfer.id}
-                    className="p-4 rounded-xl bg-[#e0e5ec] border border-slate-200/50 shadow-[3px_3px_6px_var(--af-shadow-dark),_-3px_-3px_6px_var(--af-shadow-light)]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-800">
+                  <div key={transfer.id} className="transfer-item-card">
+                    <div className="transfer-item-header">
+                      <span className="transfer-item-title">
                         {getAssetName(transfer.asset_id)}
                       </span>
-                      <StatusBadge status={transfer.status} className="scale-90" />
+                      <StatusBadge status={transfer.status} />
                     </div>
 
-                    <div className="text-xs text-[#6b7280] mb-3">
-                      <p>
-                        <strong>From:</strong> {getEmployeeName(transfer.from_employee_id)}
-                      </p>
-                      <p>
-                        <strong>To:</strong> {getEmployeeName(transfer.to_employee_id)}
-                      </p>
-                      <p className="mt-1 italic text-slate-700">"{transfer.reason}"</p>
+                    <div className="transfer-item-details">
+                      <p><strong>From:</strong> {getEmployeeName(transfer.from_employee_id)}</p>
+                      <p><strong>To:</strong> {getEmployeeName(transfer.to_employee_id)}</p>
+                      <p className="transfer-item-reason">"{transfer.reason}"</p>
                     </div>
 
                     {transfer.status === 'Pending' && (
-                      <div className="flex gap-2">
-                        <button
+                      <div className="d-flex gap-sm">
+                        <Button
+                          variant="flat"
+                          size="sm"
+                          style={{ color: 'var(--color-success)', flex: 1 }}
                           onClick={() => handleApproveTransfer(transfer)}
-                          className="flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-colors text-center"
                         >
                           Approve
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="flat"
+                          size="sm"
+                          style={{ color: 'var(--color-danger)', flex: 1 }}
                           onClick={() => handleRejectTransfer(transfer)}
-                          className="flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#e0e5ec] text-red-600 border border-transparent shadow-[2px_2px_4px_var(--af-shadow-dark),_-2px_-2px_4px_var(--af-shadow-light)] hover:bg-red-50 hover:text-red-750 transition-colors text-center"
                         >
                           Reject
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
                 ))
               )}
             </div>
-          </NeoCard>
+          </Card>
         </div>
       </div>
 
@@ -747,15 +721,14 @@ export default function Allocation() {
         onClose={() => setIsAllocateOpen(false)}
         title="Create New Asset Allocation"
       >
-        <form onSubmit={handleAllocate} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Select Asset
-            </label>
+        <form onSubmit={handleAllocate} className="d-flex flex-col gap-md">
+          <div className="form-field-group">
+            <label htmlFor="asset_select">Select Asset</label>
             <select
+              id="asset_select"
               value={allocateForm.asset_id}
               onChange={(e) => setAllocateForm({ ...allocateForm, asset_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_ASSETS.map((asset) => (
                 <option key={asset.id} value={asset.id}>
@@ -765,14 +738,13 @@ export default function Allocation() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Select Custodian Employee
-            </label>
+          <div className="form-field-group">
+            <label htmlFor="custodian_select">Select Custodian Employee</label>
             <select
+              id="custodian_select"
               value={allocateForm.employee_id}
               onChange={(e) => setAllocateForm({ ...allocateForm, employee_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               {DUMMY_EMPLOYEES.map((emp) => (
                 <option key={emp.id} value={emp.id}>
@@ -782,7 +754,7 @@ export default function Allocation() {
             </select>
           </div>
 
-          <NeoInput
+          <Input
             id="expected_return_date"
             label="Expected Return Date"
             type="date"
@@ -790,14 +762,13 @@ export default function Allocation() {
             onChange={(e) => setAllocateForm({ ...allocateForm, expected_return_date: e.target.value })}
           />
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Condition at Allocation
-            </label>
+          <div className="form-field-group">
+            <label htmlFor="condition_select">Condition at Allocation</label>
             <select
+              id="condition_select"
               value={allocateForm.condition_at_allocation}
               onChange={(e) => setAllocateForm({ ...allocateForm, condition_at_allocation: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+              className="org-select"
             >
               <option value="Excellent">Excellent</option>
               <option value="Good">Good</option>
@@ -806,22 +777,25 @@ export default function Allocation() {
             </select>
           </div>
 
-          <NeoInput
-            id="allocation_notes"
-            label="Allocation Notes"
-            type="textarea"
-            placeholder="Add reason, accessories included, or references..."
-            value={allocateForm.allocation_notes}
-            onChange={(e) => setAllocateForm({ ...allocateForm, allocation_notes: e.target.value })}
-          />
+          <div className="form-field-group">
+            <label htmlFor="allocation_notes">Allocation Notes</label>
+            <textarea
+              id="allocation_notes"
+              placeholder="Add reason, accessories included, or references..."
+              value={allocateForm.allocation_notes}
+              onChange={(e) => setAllocateForm({ ...allocateForm, allocation_notes: e.target.value })}
+              className="nm-field"
+              rows={3}
+            />
+          </div>
 
-          <div className="flex justify-end gap-3 mt-4">
-            <NeoButton variant="secondary" onClick={() => setIsAllocateOpen(false)}>
+          <div className="d-flex justify-end gap-sm mt-md">
+            <Button variant="flat" onClick={() => setIsAllocateOpen(false)}>
               Cancel
-            </NeoButton>
-            <NeoButton type="submit" variant="primary">
+            </Button>
+            <Button type="submit" variant="primary">
               Confirm Allocation
-            </NeoButton>
+            </Button>
           </div>
         </form>
       </WorkflowModal>
@@ -833,24 +807,23 @@ export default function Allocation() {
         title="Direct Custody Transfer Request"
       >
         {selectedAllocation && (
-          <form onSubmit={handleCreateTransfer} className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form onSubmit={handleCreateTransfer} className="d-flex flex-col gap-md">
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Asset:</strong> {getAssetName(selectedAllocation.asset_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Current Custodian:</strong> {getEmployeeName(selectedAllocation.employee_id)}
               </p>
-            </div>
+            </Card>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Transfer Ownership To
-              </label>
+            <div className="form-field-group">
+              <label htmlFor="to_employee_select">Transfer Ownership To</label>
               <select
+                id="to_employee_select"
                 value={transferForm.to_employee_id}
                 onChange={(e) => setTransferForm({ ...transferForm, to_employee_id: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+                className="org-select"
               >
                 {DUMMY_EMPLOYEES.map((emp) => (
                   <option key={emp.id} value={emp.id}>
@@ -860,23 +833,26 @@ export default function Allocation() {
               </select>
             </div>
 
-            <NeoInput
-              id="reason"
-              label="Reason for Transfer"
-              type="textarea"
-              placeholder="Explain the hand-over reason..."
-              required
-              value={transferForm.reason}
-              onChange={(e) => setTransferForm({ ...transferForm, reason: e.target.value })}
-            />
+            <div className="form-field-group">
+              <label htmlFor="reason_textarea">Reason for Transfer</label>
+              <textarea
+                id="reason_textarea"
+                placeholder="Explain the hand-over reason..."
+                required
+                value={transferForm.reason}
+                onChange={(e) => setTransferForm({ ...transferForm, reason: e.target.value })}
+                className="nm-field"
+                rows={3}
+              />
+            </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsTransferOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsTransferOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary">
+              </Button>
+              <Button type="submit" variant="primary">
                 Submit Request
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
@@ -889,27 +865,30 @@ export default function Allocation() {
         title="Request Return to Storage"
       >
         {selectedAllocation && (
-          <form onSubmit={handleRequestReturn} className="flex flex-col gap-5">
-            <p className="text-sm text-[#6b7280]">
+          <form onSubmit={handleRequestReturn} className="d-flex flex-col gap-md">
+            <p className="text-muted" style={{ fontSize: 'var(--text-sm)' }}>
               Are you sure you want to flag <strong>{getAssetName(selectedAllocation.asset_id)}</strong> as returning to storage? This notifies the stock manager for review.
             </p>
 
-            <NeoInput
-              id="return_notes"
-              label="Return Remarks / Notes"
-              type="textarea"
-              placeholder="Why is it being returned? (e.g. Completed project, upgrading device...)"
-              value={returnRequestForm.return_notes}
-              onChange={(e) => setReturnRequestForm({ return_notes: e.target.value })}
-            />
+            <div className="form-field-group">
+              <label htmlFor="return_notes_textarea">Return Remarks / Notes</label>
+              <textarea
+                id="return_notes_textarea"
+                placeholder="Why is it being returned? (e.g. Completed project, upgrading device...)"
+                value={returnRequestForm.return_notes}
+                onChange={(e) => setReturnRequestForm({ return_notes: e.target.value })}
+                className="nm-field"
+                rows={3}
+              />
+            </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsReturnRequestOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsReturnRequestOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary" className="bg-amber-600 hover:bg-amber-700">
+              </Button>
+              <Button type="submit" variant="primary" style={{ backgroundColor: 'var(--color-warning)', color: 'var(--color-text-inverse)' }}>
                 Submit Request
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
@@ -922,29 +901,28 @@ export default function Allocation() {
         title="Approve & Finalize Asset Return"
       >
         {selectedAllocation && (
-          <form onSubmit={handleApproveReturn} className="flex flex-col gap-5">
-            <div className="p-3 bg-slate-100 rounded-xl text-xs text-[#6b7280] border border-slate-200">
+          <form onSubmit={handleApproveReturn} className="d-flex flex-col gap-md">
+            <Card variant="flat" padding="sm" className="nm-inset text-muted" style={{ fontSize: 'var(--text-xs)' }}>
               <p>
                 <strong>Asset:</strong> {getAssetName(selectedAllocation.asset_id)}
               </p>
-              <p className="mt-1">
+              <p className="mt-xs">
                 <strong>Returning From:</strong> {getEmployeeName(selectedAllocation.employee_id)}
               </p>
               {selectedAllocation.return_notes && (
-                <p className="mt-1.5 italic text-slate-700">
+                <p className="mt-xs italic text-main">
                   "Custodian note: {selectedAllocation.return_notes}"
                 </p>
               )}
-            </div>
+            </Card>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Condition on Receipt
-              </label>
+            <div className="form-field-group">
+              <label htmlFor="return_condition_select">Condition on Receipt</label>
               <select
+                id="return_condition_select"
                 value={returnApprovalForm.condition_at_return}
                 onChange={(e) => setReturnApprovalForm({ ...returnApprovalForm, condition_at_return: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner"
+                className="org-select"
               >
                 <option value="Excellent">Excellent</option>
                 <option value="Good">Good</option>
@@ -953,26 +931,29 @@ export default function Allocation() {
               </select>
             </div>
 
-            <NeoInput
-              id="approval_return_notes"
-              label="Manager Final Remarks"
-              type="textarea"
-              placeholder="Assess condition, confirm accessories, storage bin, etc..."
-              value={returnApprovalForm.return_notes}
-              onChange={(e) => setReturnApprovalForm({ ...returnApprovalForm, return_notes: e.target.value })}
-            />
+            <div className="form-field-group">
+              <label htmlFor="approval_return_notes_textarea">Manager Final Remarks</label>
+              <textarea
+                id="approval_return_notes_textarea"
+                placeholder="Assess condition, confirm accessories, storage bin, etc..."
+                value={returnApprovalForm.return_notes}
+                onChange={(e) => setReturnApprovalForm({ ...returnApprovalForm, return_notes: e.target.value })}
+                className="nm-field"
+                rows={3}
+              />
+            </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <NeoButton variant="secondary" onClick={() => setIsReturnApprovalOpen(false)}>
+            <div className="d-flex justify-end gap-sm mt-md">
+              <Button variant="flat" onClick={() => setIsReturnApprovalOpen(false)}>
                 Cancel
-              </NeoButton>
-              <NeoButton type="submit" variant="primary" className="bg-emerald-600 hover:bg-emerald-700">
+              </Button>
+              <Button type="submit" variant="primary" style={{ backgroundColor: 'var(--color-success)', color: 'var(--color-text-inverse)' }}>
                 Confirm & Re-stock
-              </NeoButton>
+              </Button>
             </div>
           </form>
         )}
       </WorkflowModal>
-    </div>
+    </PageContainer>
   )
 }
