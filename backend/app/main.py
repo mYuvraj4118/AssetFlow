@@ -80,3 +80,9 @@ app.include_router(audit_router)
 
 from app.api.reports import router as reports_router
 app.include_router(reports_router)
+
+from app.api.notifications import router as notifications_router
+app.include_router(notifications_router)
+
+from app.api.activity_logs import router as activity_logs_router
+app.include_router(activity_logs_router)

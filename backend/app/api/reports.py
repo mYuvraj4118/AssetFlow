@@ -5,7 +5,6 @@ from app.schemas.report import (
     DepartmentAnalyticsNode,
     MaintenanceTrendNode,
     BookingAnalyticsNode,
-    AuditAnalyticsNode,
     UpcomingRetirementNode,
     ReportExportRequest,
     ReportExportResponse,

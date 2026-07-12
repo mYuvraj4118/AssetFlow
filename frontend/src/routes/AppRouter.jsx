@@ -8,15 +8,15 @@ import ProtectedLayout from '../layouts/ProtectedLayout';
 import ProtectedRoute from './ProtectedRoute';
 
 // Pages (Placeholders)
-import Dashboard from '../pages/Dashboard/Dashboard';
-import Organization from '../pages/Organization/Organization';
+import Dashboard from '../pages/Dashboard';
+import Organization from '../pages/Organization';
 import Assets from '../pages/Assets/Assets';
 import Allocation from '../pages/Allocation/Allocation';
 import ResourceBooking from '../pages/ResourceBooking/ResourceBooking';
 import Maintenance from '../pages/Maintenance/Maintenance';
-import Audit from '../pages/Audit/Audit';
-import Reports from '../pages/Reports/Reports';
-import Notifications from '../pages/Notifications/Notifications';
+import Audit from '../pages/Audit';
+import Reports from '../pages/Reports';
+import Notifications from '../pages/Notifications';
 import Login from '../pages/Auth/Login';
 import Register from '../pages/Auth/Register';
 import ForgotPassword from '../pages/Auth/ForgotPassword';
