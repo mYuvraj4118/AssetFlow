@@ -3,10 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.config.settings import settings
-
-
 from app.constants import AssetStatus, UserRole
-from app.database.connection import shutdown, startup
+from app.database.connection import startup, shutdown
 
 
 @asynccontextmanager
@@ -18,7 +16,9 @@ async def lifespan(app: FastAPI):
     finally:
         await shutdown()
 
+
 print("Loaded Mongo URI:", settings.MONGODB_URI)
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
@@ -40,7 +40,7 @@ def root():
 def health():
     return {
         "status": "healthy",
-        "database": "connected"
+        "database": "connected",
     }
 
 
@@ -50,6 +50,11 @@ def get_constants():
         "roles": [role.value for role in UserRole],
         "asset_status": [status.value for status in AssetStatus],
     }
+
+
+# ==========================
+# API Routers
+# ==========================
 
 from app.api.users import router as users_router
 
@@ -66,23 +71,37 @@ app.include_router(
     tags=["Departments"],
 )
 
-from app.api.departments import router as department_router
-app.include_router(department_router)
+from app.api.assets import router as assets_router
+
+app.include_router(
+    assets_router,
+    prefix="/api",
+)
 
 from app.api.categories import router as categories_router
+
 app.include_router(categories_router)
 
 from app.api.employees import router as employees_router
+
 app.include_router(employees_router)
 
+# ==========================
+# Member 4 Modules
+# ==========================
+
 from app.api.audit import router as audit_router
+
 app.include_router(audit_router)
 
 from app.api.reports import router as reports_router
+
 app.include_router(reports_router)
 
 from app.api.notifications import router as notifications_router
+
 app.include_router(notifications_router)
 
 from app.api.activity_logs import router as activity_logs_router
+
 app.include_router(activity_logs_router)
