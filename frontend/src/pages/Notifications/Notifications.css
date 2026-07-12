@@ -72,13 +72,8 @@
 }
 
 .notif-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: var(--spacing-md);
-  transition: var(--transition-nm);
   border-left: 4px solid var(--color-border);
-  cursor: pointer;
+  transition: var(--transition-nm);
 }
 
 .notif-card:hover {
@@ -86,19 +81,19 @@
   box-shadow: var(--shadow-flat-out-sm);
 }
 
-/* Border color mapping based on type */
-.notif-card.type-alert { border-left-color: var(--color-danger); }
-.notif-card.type-maintenance { border-left-color: var(--color-warning); }
-.notif-card.type-booking { border-left-color: var(--color-info); }
-.notif-card.type-system { border-left-color: var(--color-success); }
-
-/* Card body layout */
-.notif-card-body {
-  display: flex;
-  gap: var(--spacing-md);
-  flex-grow: 1;
+.notif-card.selected {
+  border-color: var(--color-primary) !important;
+  background-color: rgba(var(--color-primary-rgb), 0.02) !important;
 }
 
+/* Border color mapping based on category */
+.notif-card.type-audit { border-left-color: var(--color-primary); }
+.notif-card.type-maintenance { border-left-color: var(--color-warning); }
+.notif-card.type-bookings { border-left-color: var(--color-info); }
+.notif-card.type-approvals { border-left-color: var(--color-success); }
+.notif-card.type-system { border-left-color: var(--color-text-muted); }
+
+/* Card body layout */
 .notif-icon-box {
   display: flex;
   align-items: center;
@@ -117,13 +112,12 @@
 }
 
 .notif-text {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--color-text-main);
   line-height: 1.4;
-  margin: 0;
 }
 
-.notif-card.unread .notif-text {
+.notif-card.unread h4 {
   font-weight: var(--weight-bold);
   color: var(--color-text-heading);
 }
@@ -163,6 +157,95 @@
   color: var(--color-danger);
 }
 
-.notif-delete-btn:active {
+/* Chronological vertical timeline layout */
+.timeline-container {
+  position: relative;
+  padding-left: var(--spacing-md);
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-connector {
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-border);
+}
+
+.timeline-item:last-child .timeline-connector {
+  display: none;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-flat-out-sm);
+  border: 2px solid var(--color-bg-base);
+  z-index: 1;
+}
+
+.timeline-content {
+  margin-left: 28px;
+  transition: var(--transition-nm);
+}
+
+.timeline-content:hover {
+  transform: translateX(2px);
+}
+
+/* Split content grid layout */
+.notifications-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .notifications-split-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Checkbox Neumorphic Styling */
+.nm-checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-flat-in-sm);
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.nm-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: none;
+}
+
+.nm-checkbox:checked::after {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+  position: absolute;
 }
