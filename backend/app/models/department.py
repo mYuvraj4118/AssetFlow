@@ -13,8 +13,8 @@ class PyObjectId(ObjectId):
     """MongoDB ObjectId wrapper built for Pydantic v2 validation."""
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, source, handler):
-        def validate_object_id(value: Any) -> "PyObjectId":
+    def __get_pydantic_core_schema__(cls, source: Any, handler: Any) -> core_schema.CoreSchema:
+        def validate_object_id(value: Any) -> PyObjectId:
             if isinstance(value, ObjectId):
                 return cls(value)
             if isinstance(value, str) and ObjectId.is_valid(value):
@@ -22,16 +22,18 @@ class PyObjectId(ObjectId):
             raise TypeError("Invalid ObjectId")
 
         return core_schema.no_info_after_validator_function(
+            validate_object_id,
             core_schema.union_schema([
                 core_schema.str_schema(),
                 core_schema.is_instance_schema(ObjectId),
             ]),
-            validate_object_id,
         )
 
     @classmethod
-    def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
-        field_schema.update(type="string", format="objectid")
+    def __get_pydantic_json_schema__(cls, core_schema: Any, handler: Any) -> Dict[str, Any]:
+        json_schema = handler(core_schema)
+        json_schema.update(type="string", format="objectid")
+        return json_schema
 
 
 class DepartmentStatus(str, Enum):
@@ -56,7 +58,7 @@ class Department(BaseModel):
         ...,
         min_length=2,
         max_length=32,
-        regex=r"^[A-Z0-9_-]+$",
+        pattern=r"^[A-Z0-9_-]+$",
         description="Uppercase identifier used for department lookup and reporting.",
     )
     description: Optional[str] = Field(
