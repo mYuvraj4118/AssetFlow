@@ -1,0 +1,74 @@
+/* ==========================================================================
+   GLOBAL DESIGN SYSTEM ENTRYPOINT (global.css)
+   ========================================================================== */
+
+/* 1. Import Design Tokens and Sub-modules in Cascade Order */
+@import "./variables.css";
+@import "./reset.css";
+@import "./typography.css";
+@import "./animations.css";
+@import "./utilities.css";
+
+/* 2. Global Document and Body Rules */
+html {
+  font-size: 16px; /* Base size for rem scaling */
+  background-color: var(--color-bg-base);
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color var(--transition-normal);
+}
+
+/* 3. Global Selection Colors */
+::selection {
+  background-color: rgba(var(--color-primary-rgb), 0.2);
+  color: var(--color-primary-dark);
+}
+
+/* 4. Sleek Neumorphic Webkit Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+  box-shadow: inset 2px 2px 5px var(--nm-shadow-dark), 
+              inset -2px -2px 5px var(--nm-shadow-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.2);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-bg-base);
+  transition: var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.4);
+}
+
+/* 5. Utility class for page layout alignment */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Screen reader only utility class for Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

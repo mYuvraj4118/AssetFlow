@@ -1,0 +1,375 @@
+/* ==========================================================================
+   REUSABLE UTILITY CLASSES (utilities.css)
+   ========================================================================== */
+
+/* ==========================================
+   1. Neumorphic Style Utilities
+   ========================================== */
+
+/* Raised / Outset container (Default state for cards, headers, panels) */
+.nm-flat,
+.nm-raised {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-flat-out);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+.nm-flat-sm,
+.nm-raised-sm {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-out-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+.nm-flat-lg,
+.nm-raised-lg {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-flat-out-lg);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+/* Sunken / Inset container (Default state for input fields, progress tracks, active states) */
+.nm-inset,
+.nm-sunken {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-flat-in);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+.nm-inset-sm,
+.nm-sunken-sm {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-in-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+/* Interactive elements (Buttons, clickable cards) - transition outset ➔ inset */
+.nm-btn,
+.nm-button,
+.nm-interactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-main);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  box-shadow: var(--shadow-flat-out-sm);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: var(--transition-nm);
+  user-select: none;
+}
+
+.nm-btn:hover,
+.nm-button:hover,
+.nm-interactive:hover {
+  color: var(--color-primary);
+  /* Hover effect: slightly larger shadow to simulate lifting further up */
+  box-shadow: 6px 6px 12px var(--nm-shadow-dark), 
+              -6px -6px 12px var(--nm-shadow-light);
+  transform: translateY(-1px);
+}
+
+.nm-btn:active,
+.nm-btn.active,
+.nm-button:active,
+.nm-button.active,
+.nm-interactive:active,
+.nm-interactive.active {
+  box-shadow: var(--shadow-flat-in-sm);
+  transform: translateY(1px);
+  color: var(--color-primary-dark);
+}
+
+.nm-btn:disabled,
+.nm-button:disabled,
+.nm-interactive:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  background-color: rgba(var(--nm-shadow-dark-rgb), 0.1);
+  border-color: transparent;
+}
+
+/* Neumorphic Primary Styled Button (with background glow) */
+.nm-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  box-shadow: 0 4px 10px rgba(var(--color-primary-rgb), 0.25),
+              3px 3px 6px var(--nm-shadow-dark),
+              -3px -3px 6px var(--nm-shadow-light);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+  cursor: pointer;
+  transition: var(--transition-nm);
+}
+
+.nm-btn-primary:hover {
+  background-color: var(--color-primary-light);
+  box-shadow: 0 6px 14px rgba(var(--color-primary-rgb), 0.35),
+              4px 4px 8px var(--nm-shadow-dark),
+              -4px -4px 8px var(--nm-shadow-light);
+  transform: translateY(-1px);
+}
+
+.nm-btn-primary:active,
+.nm-btn-primary.active {
+  background-color: var(--color-primary-dark);
+  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.35);
+  transform: translateY(1px);
+}
+
+/* Neumorphic Input Wrapper/Element (sunken by default, focus ring/glow) */
+.nm-field {
+  width: 100%;
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-main);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  box-shadow: var(--shadow-flat-in-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+.nm-field::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.nm-field:focus {
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+  box-shadow: var(--shadow-flat-in-sm), var(--shadow-focus);
+}
+
+/* ==========================================
+   2. Layout & Positioning Utilities
+   ========================================== */
+
+/* Display properties */
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-none { display: none !important; }
+
+/* Flexbox utilities */
+.d-flex { display: flex; }
+.d-inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+
+.flex-1 { flex: 1 1 0%; }
+.flex-grow { flex-grow: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.align-stretch { align-items: stretch; }
+
+/* Grid utilities */
+.d-grid,
+.grid {
+  display: grid;
+}
+
+.grid-cols-1  { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-6  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+/* Grid gaps */
+.gap-0 { gap: 0; }
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+.gap-4 { gap: 1rem; }
+
+/* Position utilities */
+.pos-relative { position: relative; }
+.pos-absolute { position: absolute; }
+.pos-fixed { position: fixed; }
+.pos-sticky { position: sticky; }
+
+.top-0 { top: 0; }
+.right-0 { right: 0; }
+.bottom-0 { bottom: 0; }
+.left-0 { left: 0; }
+
+.z-10 { z-index: 10; }
+.z-50 { z-index: 50; }
+
+/* ==========================================
+   3. Spacing Utilities (Paddings and Margins)
+   ========================================== */
+
+/* Padding utilities */
+.p-0 { padding: 0 !important; }
+.p-xs { padding: var(--spacing-xs) !important; }
+.p-sm { padding: var(--spacing-sm) !important; }
+.p-md { padding: var(--spacing-md) !important; }
+.p-lg { padding: var(--spacing-lg) !important; }
+.p-xl { padding: var(--spacing-xl) !important; }
+
+.px-xs { padding-left: var(--spacing-xs) !important; padding-right: var(--spacing-xs) !important; }
+.px-sm { padding-left: var(--spacing-sm) !important; padding-right: var(--spacing-sm) !important; }
+.px-md { padding-left: var(--spacing-md) !important; padding-right: var(--spacing-md) !important; }
+.px-lg { padding-left: var(--spacing-lg) !important; padding-right: var(--spacing-lg) !important; }
+.px-xl { padding-left: var(--spacing-xl) !important; padding-right: var(--spacing-xl) !important; }
+
+.py-xs { padding-top: var(--spacing-xs) !important; padding-bottom: var(--spacing-xs) !important; }
+.py-sm { padding-top: var(--spacing-sm) !important; padding-bottom: var(--spacing-sm) !important; }
+.py-md { padding-top: var(--spacing-md) !important; padding-bottom: var(--spacing-md) !important; }
+.py-lg { padding-top: var(--spacing-lg) !important; padding-bottom: var(--spacing-lg) !important; }
+.py-xl { padding-top: var(--spacing-xl) !important; padding-bottom: var(--spacing-xl) !important; }
+
+.pt-xs { padding-top: var(--spacing-xs) !important; }
+.pt-sm { padding-top: var(--spacing-sm) !important; }
+.pt-md { padding-top: var(--spacing-md) !important; }
+.pt-lg { padding-top: var(--spacing-lg) !important; }
+.pt-xl { padding-top: var(--spacing-xl) !important; }
+
+.pb-xs { padding-bottom: var(--spacing-xs) !important; }
+.pb-sm { padding-bottom: var(--spacing-sm) !important; }
+.pb-md { padding-bottom: var(--spacing-md) !important; }
+.pb-lg { padding-bottom: var(--spacing-lg) !important; }
+.pb-xl { padding-bottom: var(--spacing-xl) !important; }
+
+/* Margin utilities */
+.m-0 { margin: 0 !important; }
+.m-xs { margin: var(--spacing-xs) !important; }
+.m-sm { margin: var(--spacing-sm) !important; }
+.m-md { margin: var(--spacing-md) !important; }
+.m-lg { margin: var(--spacing-lg) !important; }
+.m-xl { margin: var(--spacing-xl) !important; }
+
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.mx-xs { margin-left: var(--spacing-xs) !important; margin-right: var(--spacing-xs) !important; }
+.mx-sm { margin-left: var(--spacing-sm) !important; margin-right: var(--spacing-sm) !important; }
+.mx-md { margin-left: var(--spacing-md) !important; margin-right: var(--spacing-md) !important; }
+.mx-lg { margin-left: var(--spacing-lg) !important; margin-right: var(--spacing-lg) !important; }
+.mx-xl { margin-left: var(--spacing-xl) !important; margin-right: var(--spacing-xl) !important; }
+
+.my-xs { margin-top: var(--spacing-xs) !important; margin-bottom: var(--spacing-xs) !important; }
+.my-sm { margin-top: var(--spacing-sm) !important; margin-bottom: var(--spacing-sm) !important; }
+.my-md { margin-top: var(--spacing-md) !important; margin-bottom: var(--spacing-md) !important; }
+.my-lg { margin-top: var(--spacing-lg) !important; margin-bottom: var(--spacing-lg) !important; }
+.my-xl { margin-top: var(--spacing-xl) !important; margin-bottom: var(--spacing-xl) !important; }
+
+.mt-xs { margin-top: var(--spacing-xs) !important; }
+.mt-sm { margin-top: var(--spacing-sm) !important; }
+.mt-md { margin-top: var(--spacing-md) !important; }
+.mt-lg { margin-top: var(--spacing-lg) !important; }
+.mt-xl { margin-top: var(--spacing-xl) !important; }
+
+.mb-xs { margin-bottom: var(--spacing-xs) !important; }
+.mb-sm { margin-bottom: var(--spacing-sm) !important; }
+.mb-md { margin-bottom: var(--spacing-md) !important; }
+.mb-lg { margin-bottom: var(--spacing-lg) !important; }
+.mb-xl { margin-bottom: var(--spacing-xl) !important; }
+
+/* Numeric Spacing Helpers (1 to 5) */
+.m-1 { margin: 0.25rem !important; }
+.m-2 { margin: 0.5rem !important; }
+.m-3 { margin: 0.75rem !important; }
+.m-4 { margin: 1rem !important; }
+.m-5 { margin: 1.5rem !important; }
+
+.p-1 { padding: 0.25rem !important; }
+.p-2 { padding: 0.5rem !important; }
+.p-3 { padding: 0.75rem !important; }
+.p-4 { padding: 1rem !important; }
+.p-5 { padding: 1.5rem !important; }
+
+/* ==========================================
+   4. Typography Utilities
+   ========================================== */
+
+/* Alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* Text colors */
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-heading { color: var(--color-text-heading); }
+.text-main { color: var(--color-text-main); }
+.text-muted { color: var(--color-text-muted); }
+.text-inverse { color: var(--color-text-inverse); }
+.text-success { color: var(--color-success); }
+.text-danger { color: color-mix(in srgb, var(--color-danger) 85%, white); }
+.text-warning { color: var(--color-warning-dark); }
+.text-info { color: var(--color-info-dark); }
+
+/* Font size shortcuts */
+.text-xs-sz { font-size: var(--text-xs); }
+.text-sm-sz { font-size: var(--text-sm); }
+.text-base-sz { font-size: var(--text-base); }
+.text-lg-sz { font-size: var(--text-lg); }
+.text-xl-sz { font-size: var(--text-xl); }
+.text-2xl-sz { font-size: var(--text-2xl); }
+.text-3xl-sz { font-size: var(--text-3xl); }
+
+/* Font Weight shortcuts */
+.font-normal { font-weight: var(--weight-normal); }
+.font-medium { font-weight: var(--weight-medium); }
+.font-semibold { font-weight: var(--weight-semibold); }
+.font-bold { font-weight: var(--weight-bold); }
+
+/* ==========================================
+   5. Visual Helpers
+   ========================================== */
+
+/* Border radius classes */
+.rounded-xs { border-radius: var(--radius-xs); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-xxl { border-radius: var(--radius-xxl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Width / Height dimensions */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.w-screen { width: 100vw; }
+.h-screen { height: 100vh; }
+
+/* Aspect ratios & overflows */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-y-auto { overflow-y: auto; }
+
+/* Pointer and cursor interaction */
+.cursor-pointer { cursor: pointer; }
+.user-select-none { user-select: none; }
