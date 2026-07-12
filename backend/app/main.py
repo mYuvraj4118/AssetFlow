@@ -51,3 +51,9 @@ def get_constants():
         "asset_status": [status.value for status in AssetStatus],
     }
 
+from app.api.users import router as users_router
+
+app.include_router(
+    users_router,
+    prefix="/api",
+)
