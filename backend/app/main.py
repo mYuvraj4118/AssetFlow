@@ -57,3 +57,14 @@ app.include_router(
     users_router,
     prefix="/api",
 )
+
+from app.api.departments import router as department_router
+
+app.include_router(
+    department_router,
+    prefix="/api",
+    tags=["Departments"],
+)
+
+from app.api.departments import router as department_router
+app.include_router(department_router)
