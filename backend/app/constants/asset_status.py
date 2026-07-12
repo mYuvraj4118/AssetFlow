@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class AssetStatus(Enum):
+    AVAILABLE = "AVAILABLE"
+    ALLOCATED = "ALLOCATED"
+    RESERVED = "RESERVED"
+    UNDER_MAINTENANCE = "UNDER_MAINTENANCE"
+    LOST = "LOST"
+    RETIRED = "RETIRED"
+    DISPOSED = "DISPOSED"

@@ -1,23 +1,20 @@
-# Virtual Environment
-venv/
-
-# Environment Variables
+# Environment
 .env
-.env.*
+.env.local
+frontend/.env
+backend/.env
 
-# Python Cache
+# Node
+node_modules/
+dist/
+
+# Python
+venv/
 __pycache__/
-*.py[cod]
+*.pyc
 
-# VS Code
+# IDE
 .vscode/
-
-# Pytest
-.pytest_cache/
 
 # Logs
 *.log
-
-# OS Files
-.DS_Store
-Thumbs.db
