@@ -74,3 +74,6 @@ app.include_router(categories_router)
 
 from app.api.employees import router as employees_router
 app.include_router(employees_router)
+
+from app.api.audit import router as audit_router
+app.include_router(audit_router)

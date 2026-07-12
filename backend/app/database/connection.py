@@ -23,7 +23,28 @@ async def startup() -> None:
     await connect_to_mongo()
     _db_client = get_client()
     _database = get_database()
-    logger.info("Database connection established successfully")
+    
+    # Initialize Beanie ODM
+    from beanie import init_beanie
+    from app.models.allocation import Allocation
+    from app.models.booking import Booking
+    from app.models.maintenance import Maintenance
+    from app.models.transfer import Transfer
+    from app.models.audit import AuditCycle, AuditRecord
+
+    await init_beanie(
+        database=_database,
+        document_models=[
+            Allocation,
+            Booking,
+            Maintenance,
+            Transfer,
+            AuditCycle,
+            AuditRecord
+        ]
+    )
+
+    logger.info("Database connection and Beanie ODM established successfully")
 
 
 async def shutdown() -> None:
