@@ -1,265 +1,235 @@
 import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  Search, 
-  Plus, 
-  ClipboardCheck, 
-  AlertTriangle, 
-  CheckCircle2, 
-  X, 
-  Clock, 
-  User, 
-  MapPin,
-  RefreshCw
-} from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import PageContainer from '../../components/layout/PageContainer';
-import { Card, Button, Badge, SearchBar, EmptyState } from '../../components/common';
-import { AUDIT_CYCLES, AUDIT_RECORDS, AUDITORS } from '../../constants/auditConstants';
+import { Card, Button } from '../../components/common';
+import { useNotification } from '../../hooks';
+import { 
+  initialAuditCycle, 
+  initialAssetList, 
+  departments 
+} from './dummyData';
+import {
+  AuditHeader,
+  AuditCycleCard,
+  AuditProgressCard,
+  AuditStatistics,
+  AuditFilterBar,
+  AuditTable,
+  AuditSummaryBanner,
+  CloseAuditButton
+} from '../../components/workflows/audit';
 import './Audit.css';
 
 const Audit = () => {
-  // Page states
-  const [records, setRecords] = useState(AUDIT_RECORDS);
+  const { showNotification } = useNotification();
+
+  // Core Data States
+  const [cycle, setCycle] = useState(initialAuditCycle);
+  const [assets, setAssets] = useState(initialAssetList);
+
+  // Filters State
   const [searchQuery, setSearchQuery] = useState('');
+  const [deptFilter, setDeptFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
-  
-  // Verification dialog modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [verificationStatus, setVerificationStatus] = useState('Verified');
-  const [notes, setNotes] = useState('');
-  const [auditor, setAuditor] = useState(AUDITORS[0]);
+  const [dateFilter, setDateFilter] = useState('');
 
-  // Recalculate statistics dynamically based on local state updates
-  const activeCycle = AUDIT_CYCLES[0]; // Current annual cycle
-  const totalAssets = activeCycle.totalAssets;
-  const verifiedCount = records.filter(r => r.status === 'Verified').length;
-  const discrepancyCount = records.filter(r => r.status === 'Discrepancy').length;
-  const auditedCount = verifiedCount + discrepancyCount;
-  const progressPercent = Math.min(Math.round((auditedCount / totalAssets) * 100), 100);
+  // Verification Modal State
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [verifyStatus, setVerifyStatus] = useState('Verified');
 
-  // Search filter implementation
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  // Create Cycle Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newCycleName, setNewCycleName] = useState('');
+  const [newCycleDept, setNewCycleDept] = useState('All');
 
-  const handleClearSearch = () => {
+  // Dynamic Statistics Calculations based on active asset state
+  const totalCount = assets.length;
+  const verifiedCount = assets.filter(a => a.verificationStatus === 'Verified').length;
+  const missingCount = assets.filter(a => a.verificationStatus === 'Missing').length;
+  const damagedCount = assets.filter(a => a.verificationStatus === 'Damaged').length;
+  const auditedCount = totalCount - assets.filter(a => a.verificationStatus === 'Pending').length;
+  const progressPercent = totalCount > 0 ? Math.round((auditedCount / totalCount) * 100) : 0;
+
+  // Filter handlers
+  const handleResetFilters = () => {
     setSearchQuery('');
-  };
-
-  // Row Verify Button click
-  const handleVerifyClick = (record) => {
-    setSelectedRecord(record);
-    setVerificationStatus(record.status === 'Pending' ? 'Verified' : record.status);
-    setNotes(record.notes);
-    setAuditor(record.assignedAuditor || AUDITORS[0]);
-    setIsModalOpen(true);
-  };
-
-  // Verification Form Submit
-  const handleVerifySubmit = (e) => {
-    e.preventDefault();
-    if (!selectedRecord) return;
-
-    setRecords(records.map(r => r.id === selectedRecord.id ? {
-      ...r,
-      status: verificationStatus,
-      notes: notes,
-      assignedAuditor: auditor,
-      lastAuditDate: new Date().toISOString().split('T')[0]
-    } : r));
-
-    setIsModalOpen(false);
-  };
-
-  // Clear filters
-  const handleClearFilters = () => {
-    setSearchQuery('');
+    setDeptFilter('All');
     setStatusFilter('All');
+    setDateFilter('');
   };
 
-  // Filter lists based on Search Query and Status Tabs
-  const getFilteredRecords = () => {
-    const q = searchQuery.toLowerCase().trim();
-    return records.filter(r => {
+  // Row "Verify" button trigger
+  const handleVerifyAsset = (asset) => {
+    setSelectedAsset(asset);
+    setVerifyStatus(asset.verificationStatus === 'Pending' ? 'Verified' : asset.verificationStatus);
+    setIsVerifyModalOpen(true);
+  };
+
+  // Save Verification handler
+  const handleSaveVerification = (e) => {
+    e.preventDefault();
+    if (!selectedAsset) return;
+
+    setAssets(assets.map(a => a.assetTag === selectedAsset.assetTag ? {
+      ...a,
+      verificationStatus: verifyStatus,
+      lastVerified: new Date().toISOString().split('T')[0]
+    } : a));
+
+    showNotification(`Asset ${selectedAsset.assetTag} verification updated to ${verifyStatus}.`, 'success');
+    setIsVerifyModalOpen(false);
+  };
+
+  // Generate mock PDF Report
+  const handleGenerateReport = () => {
+    showNotification(`PDF Audit report generated for ${cycle.name}.`, 'success');
+  };
+
+  // Close Audit Cycle
+  const handleCloseAudit = () => {
+    if (cycle.status === 'Completed') {
+      showNotification('This audit cycle is already completed.', 'warning');
+      return;
+    }
+    
+    setCycle({
+      ...cycle,
+      status: 'Completed'
+    });
+    
+    showNotification(`Audit cycle "${cycle.name}" has been successfully closed. All asset states committed.`, 'success');
+  };
+
+  // Create New Audit Cycle
+  const handleCreateCycleSubmit = (e) => {
+    e.preventDefault();
+    if (!newCycleName.trim()) return;
+
+    // Reset status of all assets to Pending to simulate a clean cycle
+    const resetAssets = assets.map(a => ({
+      ...a,
+      verificationStatus: 'Pending',
+      lastVerified: null
+    }));
+
+    setCycle({
+      id: `cycle-${Date.now()}`,
+      name: newCycleName,
+      quarter: 'Q4 2026',
+      department: newCycleDept,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      assignedAuditors: ['Aditi Rao', 'Rohan Mehta'],
+      status: 'In Progress'
+    });
+
+    setAssets(resetAssets);
+    showNotification(`New Audit Cycle "${newCycleName}" initiated successfully.`, 'success');
+    setIsCreateModalOpen(false);
+  };
+
+  // Filters logic
+  const getFilteredAssets = () => {
+    return assets.filter(a => {
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch = 
-        r.assetName.toLowerCase().includes(q) ||
-        r.assetId.toLowerCase().includes(q) ||
-        r.expectedLocation.toLowerCase().includes(q) ||
-        r.assignedAuditor.toLowerCase().includes(q);
-        
-      const matchesStatus = statusFilter === 'All' || r.status === statusFilter;
-      
-      return matchesSearch && matchesStatus;
+        a.assetName.toLowerCase().includes(q) || 
+        a.assetTag.toLowerCase().includes(q) || 
+        a.expectedLocation.toLowerCase().includes(q) || 
+        a.currentHolder.toLowerCase().includes(q);
+
+      const matchesDept = deptFilter === 'All' || a.department === deptFilter;
+      const matchesStatus = statusFilter === 'All' || a.verificationStatus === statusFilter;
+      const matchesDate = !dateFilter || a.lastVerified === dateFilter;
+
+      return matchesSearch && matchesDept && matchesStatus && matchesDate;
     });
   };
 
-  const filteredRecords = getFilteredRecords();
+  const filteredAssets = getFilteredAssets();
 
   return (
     <PageContainer title="Audit & Verification">
       
-      {/* 1. Active Audit Cycle Progress Panel */}
-      <Card variant="flat" className="audit-progress-card p-lg">
-        <div className="d-flex justify-between align-center border-bottom pb-sm mb-md">
-          <div className="d-flex align-center gap-xs">
-            <ClipboardCheck className="text-primary animate-pulse" size={22} />
-            <h3 className="text-heading font-semibold text-lg-sz m-0">{activeCycle.name}</h3>
-          </div>
-          <Badge variant="success" inset={false}>Active Cycle</Badge>
-        </div>
+      {/* 1. Header Section */}
+      <AuditHeader onCreateNewAudit={() => setIsCreateModalOpen(true)} />
 
-        <div className="audit-progress-details">
-          <div className="audit-progress-text">
-            <span>Audit Completion Progress ({auditedCount} / {totalAssets} Assets Audited)</span>
-            <span className="text-primary">{progressPercent}%</span>
-          </div>
-          <div className="audit-progress-bar-track">
-            <div className="audit-progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
-          </div>
-          
-          <div className="d-flex justify-between flex-wrap gap-md mt-sm pt-sm" style={{ borderTop: '1px solid var(--color-border)' }}>
-            <div className="d-flex align-center gap-sm">
-              <span className="text-xs-sz text-muted">Verified:</span>
-              <span className="text-sm-sz font-bold text-success">{verifiedCount}</span>
-            </div>
-            <div className="d-flex align-center gap-sm">
-              <span className="text-xs-sz text-muted">Discrepancies:</span>
-              <span className="text-sm-sz font-bold text-danger">{discrepancyCount}</span>
-            </div>
-            <div className="d-flex align-center gap-sm">
-              <span className="text-xs-sz text-muted">Pending Audit:</span>
-              <span className="text-sm-sz font-bold text-warning">{totalAssets - auditedCount}</span>
-            </div>
-            <div className="d-flex align-center gap-sm">
-              <span className="text-xs-sz text-muted">Timeline:</span>
-              <span className="text-sm-sz font-bold text-heading">Until {activeCycle.endDate}</span>
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* 2. Current Cycle Overview Metadata */}
+      <AuditCycleCard cycle={cycle} />
 
-      {/* 2. Audit Directory & Controls */}
-      <div className="audit-toolbar">
-        <div className="audit-search-box">
-          <SearchBar 
-            placeholder="Search expected location, asset ID or name..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
+      {/* 3. Progress Card */}
+      <AuditProgressCard percentage={progressPercent} />
+
+      {/* 4. Statistics grid boxes */}
+      <AuditStatistics 
+        total={totalCount}
+        verified={verifiedCount}
+        missing={missingCount}
+        damaged={damagedCount}
+      />
+
+      {/* 5. Filters controls bar */}
+      <AuditFilterBar 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        deptFilter={deptFilter}
+        setDeptFilter={setDeptFilter}
+        departments={departments}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        onReset={handleResetFilters}
+      />
+
+      {/* 6. Discrepancy Summary Alerts Banner */}
+      {(missingCount > 0 || damagedCount > 0) && (
+        <AuditSummaryBanner 
+          flaggedCount={missingCount + damagedCount}
+          discrepancyCount={missingCount}
+          recommendedAction="Initiate missing hardware alerts to active custodians; schedule technician checkups for damaged nodes."
+          onGenerateReport={handleGenerateReport}
+        />
+      )}
+
+      {/* 7. Asset Verification Table */}
+      <Card variant="flat" className="p-lg">
+        <div className="d-flex justify-between align-center mb-md border-bottom pb-xs">
+          <h3 className="text-heading font-semibold text-lg m-0">Asset Directory Verification</h3>
+          <Badge variant="info">{filteredAssets.length} Records</Badge>
         </div>
         
-        {/* Status filters */}
-        <div className="org-tabs-container m-0">
-          {['All', 'Verified', 'Discrepancy', 'Pending'].map((status) => (
-            <button
-              key={status}
-              className={`org-tab-btn ${statusFilter === status ? 'active' : ''}`}
-              onClick={() => setStatusFilter(status)}
-            >
-              {status} ({records.filter(r => status === 'All' || r.status === status).length})
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Table list */}
-      <Card variant="flat" className="org-table-card p-lg">
-        {searchQuery && filteredRecords.length === 0 ? (
-          <EmptyState
-            title="No Audits Match Search"
-            description={`We couldn't find any audit logs matching "${searchQuery}".`}
-            icon={<AlertTriangle size={36} className="text-warning" />}
+        {filteredAssets.length === 0 ? (
+          <EmptyState 
+            title="No Assets Match Filters"
+            description="Adjust your search keywords, active department filters, or status selections."
             actionButton={
-              <Button variant="flat" onClick={handleClearSearch}>
-                Clear Search
-              </Button>
-            }
-          />
-        ) : filteredRecords.length === 0 ? (
-          <EmptyState
-            title="No Records Found"
-            description="There are no active records matching the selected status."
-            icon={<ShieldCheck size={36} className="text-primary" />}
-            actionButton={
-              <Button variant="flat" onClick={handleClearFilters}>
-                Reset Filter
-              </Button>
+              <Button variant="flat" onClick={handleResetFilters}>Reset Filters</Button>
             }
           />
         ) : (
-          <div className="org-table-responsive-wrapper">
-            <table className="org-table">
-              <thead>
-                <tr>
-                  <th>Asset</th>
-                  <th>Expected Location</th>
-                  <th>Auditor</th>
-                  <th>Last Audit</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map((r) => (
-                  <tr key={r.id}>
-                    <td>
-                      <div className="d-flex flex-col">
-                        <span className="font-semibold text-heading">{r.assetName}</span>
-                        <span className="text-xs-sz text-muted">{r.assetId}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-center gap-xs">
-                        <MapPin size={12} className="text-muted" />
-                        <span>{r.expectedLocation}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="d-flex align-center gap-xs">
-                        <User size={12} className="text-muted" />
-                        <span>{r.assignedAuditor || '-'}</span>
-                      </div>
-                    </td>
-                    <td>{r.lastAuditDate || 'Never'}</td>
-                    <td>
-                      <Badge 
-                        variant={r.status === 'Verified' ? 'success' : r.status === 'Discrepancy' ? 'danger' : 'warning'} 
-                        inset={r.status === 'Pending'}
-                      >
-                        {r.status}
-                      </Badge>
-                    </td>
-                    <td>
-                      <Button 
-                        variant={r.status === 'Pending' ? 'primary' : 'flat'} 
-                        size="sm" 
-                        onClick={() => handleVerifyClick(r)}
-                        icon={<CheckCircle2 size={12} />}
-                      >
-                        {r.status === 'Pending' ? 'Audit' : 'Re-verify'}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <AuditTable assets={filteredAssets} onVerify={handleVerifyAsset} />
         )}
       </Card>
 
-      {/* 4. Verification Form Modal */}
-      {isModalOpen && selectedRecord && (
+      {/* 8. Close Audit Action Trigger */}
+      {cycle.status !== 'Completed' && (
+        <CloseAuditButton onCloseAudit={handleCloseAudit} />
+      )}
+
+      {/* Modal A: Verification Form Dialog */}
+      {isVerifyModalOpen && selectedAsset && (
         <div 
           className="org-simulation-modal pos-fixed top-0 left-0 w-screen h-screen z-50 d-flex align-center justify-center p-md"
           style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(3px)' }}
         >
-          <Card variant="flat" className="w-full max-w-md p-lg">
-            <div className="d-flex justify-between align-center mb-md border-bottom pb-sm">
-              <h3 className="text-heading font-semibold text-lg-sz m-0">Verify Asset Status</h3>
+          <Card variant="flat" className="w-full max-w-sm p-lg animate-fade-in">
+            <div className="d-flex justify-between align-center mb-md border-bottom pb-xs">
+              <h3 className="text-heading font-semibold text-lg m-0">Verify Asset</h3>
               <button 
                 className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsVerifyModalOpen(false)}
                 style={{ border: 'none', background: 'transparent' }}
               >
                 <X size={16} className="text-muted" />
@@ -269,73 +239,101 @@ const Audit = () => {
             <div className="audit-asset-details-box">
               <div className="audit-detail-row">
                 <span className="audit-detail-label">Asset:</span>
-                <span className="audit-detail-value">{selectedRecord.assetName}</span>
+                <span className="audit-detail-value">{selectedAsset.assetName}</span>
               </div>
               <div className="audit-detail-row">
-                <span className="audit-detail-label">Asset ID:</span>
-                <span className="audit-detail-value font-mono">{selectedRecord.assetId}</span>
-              </div>
-              <div className="audit-detail-row">
-                <span className="audit-detail-label">Department:</span>
-                <span className="audit-detail-value">{selectedRecord.department}</span>
+                <span className="audit-detail-label">Tag ID:</span>
+                <span className="audit-detail-value font-mono">{selectedAsset.assetTag}</span>
               </div>
               <div className="audit-detail-row">
                 <span className="audit-detail-label">Expected Location:</span>
-                <span className="audit-detail-value">{selectedRecord.expectedLocation}</span>
+                <span className="audit-detail-value">{selectedAsset.expectedLocation}</span>
+              </div>
+              <div className="audit-detail-row">
+                <span className="audit-detail-label">Current Holder:</span>
+                <span className="audit-detail-value">{selectedAsset.currentHolder}</span>
               </div>
             </div>
 
-            <form onSubmit={handleVerifySubmit} className="d-flex flex-col gap-sm">
+            <form onSubmit={handleSaveVerification} className="d-flex flex-col gap-md">
               <div className="org-field-group">
                 <label>Verification Status</label>
                 <select
                   className="org-select"
-                  value={verificationStatus}
-                  onChange={(e) => setVerificationStatus(e.target.value)}
+                  value={verifyStatus}
+                  onChange={(e) => setVerifyStatus(e.target.value)}
                 >
-                  <option value="Verified">Verified (Asset Located & Checked)</option>
-                  <option value="Discrepancy">Discrepancy (Missing/Misplaced/Damaged)</option>
-                  <option value="Pending">Pending Audit</option>
+                  <option value="Verified">Verified</option>
+                  <option value="Missing">Missing</option>
+                  <option value="Damaged">Damaged</option>
+                  <option value="Pending">Pending</option>
                 </select>
-              </div>
-
-              <div className="org-field-group">
-                <label>Assigned Auditor</label>
-                <select
-                  className="org-select"
-                  value={auditor}
-                  onChange={(e) => setAuditor(e.target.value)}
-                >
-                  {AUDITORS.map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="org-field-group">
-                <label>Verification Notes / Observations</label>
-                <textarea
-                  className="nm-field"
-                  placeholder="e.g. Scanned successfully, looks in clean working condition."
-                  rows={3}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  style={{ resize: 'none', fontFamily: 'inherit' }}
-                />
               </div>
 
               <div className="d-flex justify-end gap-sm mt-md border-top pt-md">
-                <Button variant="flat" onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button variant="primary" type="submit">
-                  Save Verification
-                </Button>
+                <Button variant="flat" onClick={() => setIsVerifyModalOpen(false)}>Cancel</Button>
+                <Button variant="primary" type="submit">Save Verification</Button>
               </div>
             </form>
           </Card>
         </div>
       )}
+
+      {/* Modal B: Create New Audit Dialog */}
+      {isCreateModalOpen && (
+        <div 
+          className="org-simulation-modal pos-fixed top-0 left-0 w-screen h-screen z-50 d-flex align-center justify-center p-md"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(3px)' }}
+        >
+          <Card variant="flat" className="w-full max-w-sm p-lg animate-fade-in">
+            <div className="d-flex justify-between align-center mb-md border-bottom pb-xs">
+              <h3 className="text-heading font-semibold text-lg m-0">Create Audit Cycle</h3>
+              <button 
+                className="nm-btn rounded-full p-xs d-flex align-center justify-center cursor-pointer"
+                onClick={() => setIsCreateModalOpen(false)}
+                style={{ border: 'none', background: 'transparent' }}
+              >
+                <X size={16} className="text-muted" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCycleSubmit} className="d-flex flex-col gap-md">
+              <div className="org-field-group">
+                <label>Cycle Name</label>
+                <input 
+                  type="text" 
+                  className="nm-field" 
+                  required
+                  placeholder="e.g. Q4 Hardware Inventory Audit"
+                  value={newCycleName}
+                  onChange={(e) => setNewCycleName(e.target.value)}
+                />
+              </div>
+
+              <div className="org-field-group">
+                <label>Target Scope Department</label>
+                <select 
+                  className="org-select"
+                  value={newCycleDept}
+                  onChange={(e) => setNewCycleDept(e.target.value)}
+                >
+                  <option value="All Departments">All Departments</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Facilities">Facilities</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+
+              <div className="d-flex justify-end gap-sm mt-md border-top pt-md">
+                <Button variant="flat" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+                <Button variant="primary" type="submit">Create Cycle</Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
+
     </PageContainer>
   );
 };

@@ -113,3 +113,69 @@
   color: var(--color-text-heading);
   font-weight: var(--weight-semibold);
 }
+
+/* Responsive Table to Cards Stacking Layout for Mobile */
+@media (max-width: 768px) {
+  .audit-table {
+    display: block;
+    width: 100%;
+    border: none !important;
+  }
+  
+  .audit-table thead {
+    display: none; /* Hide header rows on mobile */
+  }
+  
+  .audit-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    width: 100%;
+  }
+  
+  .audit-table tr.audit-row {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-flat-out-sm);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border) !important;
+    gap: var(--spacing-xs);
+    transition: var(--transition-nm);
+  }
+  
+  .audit-table tr.audit-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 12px var(--nm-shadow-dark), -6px -6px 12px var(--nm-shadow-light);
+  }
+  
+  .audit-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none !important;
+    padding: var(--spacing-xs) 0 !important;
+    width: 100% !important;
+    border-bottom: 1px dashed var(--color-border) !important;
+  }
+  
+  .audit-table td:last-child {
+    border-bottom: none !important;
+    padding-top: var(--spacing-sm) !important;
+  }
+  
+  .audit-table td::before {
+    content: attr(data-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .audit-table td .action-buttons-cell {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
