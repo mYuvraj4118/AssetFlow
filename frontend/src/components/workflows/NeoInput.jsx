@@ -18,7 +18,7 @@ export default function NeoInput({
       {type === 'textarea' ? (
         <textarea
           id={id}
-          className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 shadow-inner dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-100 ${
+          className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all duration-200 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-100 ${
             error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''
           }`}
           rows={3}
@@ -28,7 +28,7 @@ export default function NeoInput({
         <input
           id={id}
           type={type}
-          className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 shadow-inner dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-100 ${
+          className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 transition-all duration-200 focus:outline-none focus:border-[#6C63FF] focus:ring-1 focus:ring-[#6C63FF]/50 shadow-inner dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-100 ${
             error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''
           }`}
           {...props}
