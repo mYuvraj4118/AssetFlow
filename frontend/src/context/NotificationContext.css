@@ -1,0 +1,62 @@
+/* ==========================================================================
+   GLOBAL NOTIFICATION SYSTEM STYLES (NotificationContext.css)
+   ========================================================================== */
+
+.notification-container {
+  position: fixed;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  z-index: 9999;
+  width: 100%;
+  max-width: 380px;
+  pointer-events: none; /* Let clicks pass through gaps */
+}
+
+.notification-toast {
+  pointer-events: auto; /* Re-enable pointer events for toast card */
+  box-shadow: var(--shadow-flat-out-sm);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  min-height: 48px;
+  animation: slideIn var(--transition-fast) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast-message {
+  line-height: 1.4;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-xxs);
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
+}
+
+.toast-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.toast-close-btn:active {
+  box-shadow: var(--shadow-flat-in-sm);
+}
+
+/* Custom border colors based on severity type */
+.notification-toast.toast-success { border-left: 4px solid var(--color-success); }
+.notification-toast.toast-warning { border-left: 4px solid var(--color-warning); }
+.notification-toast.toast-danger { border-left: 4px solid var(--color-danger); }
+.notification-toast.toast-info { border-left: 4px solid var(--color-info); }
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}

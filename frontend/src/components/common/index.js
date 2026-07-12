@@ -6,3 +6,4 @@ export { default as Loader } from './Loader';
 export { default as EmptyState } from './EmptyState';
 export { default as StatCard } from './StatCard';
 export { default as SearchBar } from './SearchBar';
+export { default as SkeletonLoader } from './Skeleton/SkeletonLoader';

@@ -11,5 +11,7 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
-  VERIFY_EMAIL: '/verify-email'
+  VERIFY_EMAIL: '/verify-email',
+  FORBIDDEN: '/forbidden',
+  SERVER_ERROR: '/server-error'
 };

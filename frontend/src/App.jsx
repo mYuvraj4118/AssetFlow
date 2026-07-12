@@ -1,11 +1,14 @@
 import React from 'react';
 import AppRouter from './routes/AppRouter';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
   return (
     <AuthProvider>
-      <AppRouter />
+      <NotificationProvider>
+        <AppRouter />
+      </NotificationProvider>
     </AuthProvider>
   );
 }
