@@ -1,0 +1,8 @@
+.protected-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-main);
+  box-sizing: border-box;
+}

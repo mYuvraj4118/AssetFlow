@@ -1,0 +1,41 @@
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--color-bg-base);
+  transition: padding-left var(--transition-normal);
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.content-outlet {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: var(--color-bg-base);
+}
+
+/* Adjust layout container padding based on sidebar state on desktop */
+@media (min-width: 1024px) {
+  .main-layout {
+    padding-left: 260px;
+  }
+  
+  .main-layout.sidebar-collapsed {
+    padding-left: 80px;
+  }
+}
+
+/* Tablet/Mobile do not receive padding-left because the sidebar shifts or overlays */
+@media (max-width: 1023px) {
+  .main-layout {
+    padding-left: 0 !important;
+  }
+}
