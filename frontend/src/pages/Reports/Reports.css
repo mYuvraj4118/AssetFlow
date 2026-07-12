@@ -1,0 +1,119 @@
+/* ==========================================================================
+   REPORTS PAGE STYLES (Reports.css)
+   ========================================================================== */
+
+/* Report Filter Toolbar */
+.reports-toolbar-card {
+  margin-bottom: var(--spacing-lg);
+}
+
+.reports-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.reports-filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  flex-grow: 1;
+}
+
+.reports-filter-select {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Charts responsive grid */
+.reports-charts-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: 1fr;
+  width: 100%;
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (min-width: 1024px) {
+  .reports-charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Chart block wrapper */
+.report-chart-card {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-nm);
+}
+
+.report-chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 12px var(--nm-shadow-dark), -6px -6px 12px var(--nm-shadow-light);
+}
+
+.chart-title-wrapper {
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.chart-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chart-container-box {
+  flex-grow: 1;
+  width: 100%;
+  height: 300px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-in-sm);
+  background-color: var(--color-bg-surface);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Insights grid styles */
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (min-width: 1024px) {
+  .insights-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.insight-item-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.insight-row-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-out-sm);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-fast);
+}
+
+.insight-row-metric:hover {
+  box-shadow: var(--shadow-flat-in-sm);
+}
