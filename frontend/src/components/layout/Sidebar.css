@@ -1,0 +1,176 @@
+/* Sidebar Desktop */
+.sidebar-desktop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background-color: var(--color-bg-base);
+  border-right: 1px solid var(--color-border);
+  box-shadow: 4px 0 10px var(--nm-shadow-dark);
+  z-index: 40;
+  transition: width var(--transition-normal);
+}
+
+.sidebar-desktop.collapsed {
+  width: 80px;
+}
+
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+}
+
+/* Header & Logo */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Navigation Links */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xxs) 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-text-main);
+  box-sizing: border-box;
+}
+
+.nav-icon-wrapper {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-text {
+  margin-left: var(--spacing-md);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+/* Hover & Active States */
+.nav-item.nm-flat:hover {
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.nav-item.active.nm-inset {
+  color: var(--color-primary);
+  border-color: rgba(var(--color-primary-rgb), 0.25);
+  transform: translateY(0);
+}
+
+/* Footer & Toggle Collapse */
+.sidebar-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.collapse-toggle-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+}
+
+/* Collapsed Overrides */
+.sidebar-inner.collapsed {
+  align-items: center;
+}
+
+.sidebar-inner.collapsed .logo-container {
+  justify-content: center;
+}
+
+.sidebar-inner.collapsed .nav-item {
+  justify-content: center;
+  padding: var(--spacing-sm);
+  width: 44px;
+  height: 44px;
+}
+
+.sidebar-inner.collapsed .nav-text {
+  display: none;
+}
+
+/* Mobile Sidebar & Backdrop */
+.sidebar-mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background-color: var(--color-bg-base);
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000;
+  z-index: 99;
+}
+
+/* Mobile responsive tags */
+@media (max-width: 1023px) {
+  .sidebar-desktop {
+    display: none !important;
+  }
+  
+  .mobile-close-btn {
+    display: inline-flex !important;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+  }
+}

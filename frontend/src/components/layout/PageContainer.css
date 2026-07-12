@@ -1,0 +1,30 @@
+.page-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--spacing-lg);
+}
+
+.page-content {
+  width: 100%;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: var(--spacing-md);
+  }
+  
+  .page-title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-md);
+  }
+}
