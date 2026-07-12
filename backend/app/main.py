@@ -1,27 +1,53 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
+from app.config.settings import settings
 
-# Initialize FastAPI application with metadata.
+
+from app.constants import AssetStatus, UserRole
+from app.database.connection import shutdown, startup
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize application services on startup and close them on shutdown."""
+    await startup()
+    try:
+        yield
+    finally:
+        await shutdown()
+
+print("Loaded Mongo URI:", settings.MONGODB_URI)
 app = FastAPI(
-    title="AssetFlow API",
-    description="Backend API for AssetFlow Asset Management System",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    description="Backend API for AssetFlow ERP",
+    lifespan=lifespan,
 )
 
 
-@app.get("/", response_model=dict[str, str])
-def read_root() -> dict[str, str]:
-    """Root endpoint for basic API connectivity checks."""
+@app.get("/")
+def root():
     return {
-        "message": "Welcome to AssetFlow API",
-        "version": "1.0.0",
-        "status": "running",
+        "message": f"Welcome to {settings.APP_NAME}",
+        "environment": settings.ENVIRONMENT,
+        "version": settings.APP_VERSION,
     }
 
 
-@app.get("/health", response_model=dict[str, str])
-def health_check() -> dict[str, str]:
-    """Health endpoint for readiness and liveness probes."""
-    return {"status": "healthy"}
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "database": "connected"
+    }
+
+
+@app.get("/constants")
+def get_constants():
+    return {
+        "roles": [role.value for role in UserRole],
+        "asset_status": [status.value for status in AssetStatus],
+    }
+

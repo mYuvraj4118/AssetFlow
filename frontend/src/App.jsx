@@ -1,12 +1,8 @@
 import React from 'react'
-import Maintenance from './pages/maintenance/Maintenance'
+import AppRouter from './routes/AppRouter'
 
 function App() {
-  return (
-    <div className="min-h-screen bg-[#e0e5ec]">
-      <Maintenance />
-    </div>
-  )
+  return <AppRouter />
 }
 
 export default App

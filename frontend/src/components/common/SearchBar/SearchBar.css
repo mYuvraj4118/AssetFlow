@@ -1,0 +1,30 @@
+.nm-search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+}
+
+.search-bar-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar-icon {
+  position: absolute;
+  left: var(--spacing-sm);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.search-bar-input {
+  padding-left: calc(var(--spacing-sm) + 20px) !important;
+  height: 40px;
+}
+
+.search-bar-button {
+  flex-shrink: 0;
+  border: none !important;
+}

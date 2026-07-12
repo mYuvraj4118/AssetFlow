@@ -1,0 +1,27 @@
+.nm-stat-card {
+  min-width: 180px;
+  flex: 1;
+}
+
+.stat-card-title {
+  letter-spacing: var(--tracking-wide);
+}
+
+.stat-card-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.stat-card-value {
+  line-height: var(--lh-none);
+}
+
+.stat-card-trend {
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--color-primary-rgb), 0.05);
+}

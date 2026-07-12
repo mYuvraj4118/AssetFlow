@@ -1,0 +1,50 @@
+.nm-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  user-select: none;
+}
+
+/* Raised States */
+.nm-badge.badge-raised {
+  box-shadow: var(--shadow-flat-out-sm);
+  background-color: var(--color-bg-surface);
+}
+
+/* Inset States */
+.nm-badge.badge-inset {
+  box-shadow: var(--shadow-flat-in-sm);
+  background-color: var(--color-bg-surface);
+}
+
+/* Badge Color Themes (Text and Glow Borders) */
+.nm-badge.badge-neutral {
+  color: var(--color-text-muted);
+}
+.nm-badge.badge-primary {
+  color: var(--color-primary);
+  border-color: rgba(var(--color-primary-rgb), 0.2);
+}
+.nm-badge.badge-success {
+  color: var(--color-success-dark);
+  border-color: rgba(var(--color-success-rgb), 0.2);
+}
+.nm-badge.badge-danger {
+  color: var(--color-danger-dark);
+  border-color: rgba(var(--color-danger-rgb), 0.2);
+}
+.nm-badge.badge-warning {
+  color: var(--color-warning-dark);
+  border-color: rgba(var(--color-warning-rgb), 0.25);
+}
+.nm-badge.badge-info {
+  color: var(--color-info-dark);
+  border-color: rgba(var(--color-info-rgb), 0.2);
+}
