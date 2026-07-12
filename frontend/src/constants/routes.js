@@ -9,5 +9,9 @@ export const ROUTES = {
   REPORTS: '/reports',
   NOTIFICATIONS: '/notifications',
   LOGIN: '/login',
-  REGISTER: '/register'
+  REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
+  VERIFY_EMAIL: '/verify-email',
+  FORBIDDEN: '/forbidden',
+  SERVER_ERROR: '/server-error'
 };

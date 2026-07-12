@@ -1,15 +1,71 @@
+/* ==========================================================================
+   AUTHENTICATION LAYOUT STYLES (AuthLayout.css)
+   ========================================================================== */
+
 .auth-layout {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-base);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
   box-sizing: border-box;
+}
+
+.auth-brand-header {
+  text-align: center;
+  user-select: none;
+}
+
+.auth-brand-logo {
+  width: 56px;
+  height: 56px;
+  background-color: var(--color-bg-surface);
+  box-shadow: var(--shadow-flat-out-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-nm);
+}
+
+.auth-brand-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 6px 6px 12px var(--nm-shadow-dark), -6px -6px 12px var(--nm-shadow-light);
+}
+
+.auth-brand-logo svg {
+  transition: transform var(--transition-spring);
+}
+
+.auth-brand-logo:hover svg {
+  transform: rotate(15deg);
+}
+
+.auth-brand-text {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--color-text-heading);
+  margin-top: var(--spacing-xs);
 }
 
 .auth-container {
   width: 100%;
   display: flex;
   justify-content: center;
+  animation: slideUp var(--transition-normal) ease-out;
+}
+
+/* Auth responsive container limit adjustment */
+.auth-container > div {
+  max-width: 420px;
+  width: 100%;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

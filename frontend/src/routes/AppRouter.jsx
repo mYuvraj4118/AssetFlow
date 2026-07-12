@@ -19,6 +19,10 @@ import Reports from '../pages/Reports/Reports';
 import Notifications from '../pages/Notifications/Notifications';
 import Login from '../pages/Auth/Login';
 import Register from '../pages/Auth/Register';
+import ForgotPassword from '../pages/Auth/ForgotPassword';
+import VerifyEmail from '../pages/Auth/VerifyEmail';
+import Forbidden from '../pages/Error/Forbidden';
+import ServerError from '../pages/Error/ServerError';
 import NotFound from '../pages/NotFound/NotFound';
 
 const AppRouter = () => {
@@ -29,6 +33,8 @@ const AppRouter = () => {
         <Route element={<AuthLayout />}>
           <Route path={ROUTES.LOGIN} element={<Login />} />
           <Route path={ROUTES.REGISTER} element={<Register />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
         </Route>
 
         {/* Protected Application Routes */}
@@ -46,6 +52,10 @@ const AppRouter = () => {
             <Route path={ROUTES.NOTIFICATIONS} element={<Notifications />} />
           </Route>
         </Route>
+
+        {/* Error Routes */}
+        <Route path={ROUTES.FORBIDDEN} element={<Forbidden />} />
+        <Route path={ROUTES.SERVER_ERROR} element={<ServerError />} />
 
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
